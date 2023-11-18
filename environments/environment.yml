@@ -1,0 +1,13 @@
+name: align-variants
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3
+  - fastp=0.23.2
+  - bwa=0.7.17
+  - samtools=1.18
+  - bcftools=1.18
+  - qualimap=2.2.2d
+  - freebayes=1.3.7
