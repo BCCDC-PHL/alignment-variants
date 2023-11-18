@@ -38,7 +38,7 @@ process index_ref {
     path(ref)
 
     output:
-    tuple path('ref.fa'), path('ref.*')
+    tuple path('ref.fa'), path('ref.fa.*')
 
     script:
     ref_filename = ref.getName()
