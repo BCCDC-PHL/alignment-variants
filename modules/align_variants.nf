@@ -71,15 +71,19 @@ process bwa_mem {
 	${ref} \
 	${reads_1} \
 	${reads_2} \
-	| samtools sort -o ${sample_id}.bam
+	| samtools sort -n \
+        | samtools fixmate -mr - - \
+	| samtools sort - \
+	| samtools markdup -r - - \
+	> ${sample_id}.bam
 
     samtools index ${sample_id}.bam
 
-    printf -- "- process_name: "bwa mem"\\n" >> ${sample_id}_bwa_mem_provenance.yml
-    printf -- "  tools:\\n"                  >> ${sample_id}_bwa_mem_provenance.yml
-    printf -- "    - tool_name: bwa\\n"      >> ${sample_id}_bwa_mem_provenance.yml
+    printf -- "- process_name: \"bwa mem\"\\n" >> ${sample_id}_bwa_mem_provenance.yml
+    printf -- "  tools:\\n"                    >> ${sample_id}_bwa_mem_provenance.yml
+    printf -- "    - tool_name: bwa\\n"        >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "      tool_version: \$(bwa 2>&1 | grep 'Version' | cut -d ' ' -f 2)\\n"      >> ${sample_id}_bwa_mem_provenance.yml
-    printf -- "    - tool_name: samtools\\n" >> ${sample_id}_bwa_mem_provenance.yml
+    printf -- "    - tool_name: samtools\\n"   >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "      tool_version: \$(samtools 2>&1 | grep 'Version' | cut -d ' ' -f 2)\\n" >> ${sample_id}_bwa_mem_provenance.yml
     """
 }
@@ -174,3 +178,30 @@ process calculate_gene_coverage {
     """
 }
 
+
+process freebayes {
+    
+    tag { sample_id }
+
+    publishDir "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}_freebayes.vcf"
+
+    input:
+    tuple val(sample_id), path(alignment), path(ref), path(ref_index)
+
+    output:
+    tuple val(sample_id), path("${sample_id}_freebayes.vcf")
+
+    script:
+    """
+    freebayes \
+	--fasta-reference ${ref} \
+	--bam ${alignment[0]} \
+	--ploidy 1 \
+	--min-mapping-quality 30 \
+	--min-base-quality 20 \
+	--min-alternate-count 2 \
+	--min-alternate-fraction 0.1 \
+	--report-genotype-likelihood-max \
+	> ${sample_id}_freebayes.vcf
+    """
+}
