@@ -63,17 +63,18 @@ process bwa_mem {
     tuple val(sample_id), path("${sample_id}_bwa_mem_provenance.yml"), emit: provenance
     
     script:
+    bwa_threads = task.cpus - 8
     """
-
     bwa mem \
-	-t ${task.cpus} \
+	-t ${bwa_threads} \
 	-R "@RG\\tID:${sample_id}\\tSM:${sample_id}\\tPL:ILLUMINA" \
 	${ref} \
 	${reads_1} \
 	${reads_2} \
-	| samtools sort -n \
+	| samtools view -@ 2 -h -F 1540 \
+	| samtools sort -@ 2 -l 0 -m 1000M -n \
         | samtools fixmate -mr - - \
-	| samtools sort - \
+	| samtools sort -@ 2 -l 0 -m 1000M \
 	| samtools markdup -r - - \
 	> ${sample_id}.bam
 
@@ -85,6 +86,30 @@ process bwa_mem {
     printf -- "      tool_version: \$(bwa 2>&1 | grep 'Version' | cut -d ' ' -f 2)\\n"      >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "    - tool_name: samtools\\n"   >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "      tool_version: \$(samtools 2>&1 | grep 'Version' | cut -d ' ' -f 2)\\n" >> ${sample_id}_bwa_mem_provenance.yml
+    """
+}
+
+
+process minimap2 {
+
+    tag { sample_id }
+    
+    publishDir "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}.{bam,bam.bai}"
+
+    input:
+    tuple val(sample_id), path(reads), path(ref), path(ref_index)
+
+    output:
+    tuple val(sample_id), path("${sample_id}.{bam,bam.bai}"), emit: alignment
+    tuple val(sample_id), path("${sample_id}_minimap2_provenance.yml"), emit: provenance
+    
+    script:
+    minimap2_threads = task.cpus - 8
+    """
+    minimap2 \
+	-t ${minimap2_threads} \
+	-ax map-ont \
+	> ${sample_id}.bam
     """
 }
 
@@ -103,8 +128,17 @@ process qualimap_bamqc {
     
     script:
     """
-    qualimap bamqc -bam ${alignment[0]} --outdir ${sample_id}_bamqc
-    qualimap_bamqc_genome_results_to_csv.py -s ${sample_id} ${sample_id}_bamqc/genome_results.txt > ${sample_id}_qualimap_alignment_qc.csv
+    qualimap bamqc \
+	--paint-chromosome-limits \
+	-nt ${task.cpus} \
+	-bam ${alignment[0]} \
+	-outformat PDF \
+	--outdir ${sample_id}_bamqc
+
+    qualimap_bamqc_genome_results_to_csv.py \
+	-s ${sample_id} \
+	${sample_id}_bamqc/genome_results.txt \
+	> ${sample_id}_qualimap_alignment_qc.csv
     """
 }
 
@@ -197,10 +231,10 @@ process freebayes {
 	--fasta-reference ${ref} \
 	--bam ${alignment[0]} \
 	--ploidy 1 \
-	--min-mapping-quality 30 \
-	--min-base-quality 20 \
+	--min-base-quality ${params.min_base_qual_for_variant_calling} \
+	--min-mapping-quality ${params.min_mapping_qual_for_variant_calling} \
 	--min-alternate-count 2 \
-	--min-alternate-fraction 0.1 \
+	--min-alternate-fraction ${params.min_af_for_variant_calling} \
 	--report-genotype-likelihood-max \
 	> ${sample_id}_freebayes.vcf
     """
