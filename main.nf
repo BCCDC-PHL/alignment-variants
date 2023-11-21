@@ -4,23 +4,23 @@ import java.time.LocalDateTime
 
 nextflow.enable.dsl = 2
 
-include { hash_files as hash_ref }     from './modules/hash_files.nf'
+include { hash_files as hash_ref }         from './modules/hash_files.nf'
 include { hash_files as hash_fastq_short } from './modules/hash_files.nf'
 include { hash_files as hash_fastq_long }  from './modules/hash_files.nf'
-include { fastp }                      from './modules/short_read_qc.nf'
-include { filtlong }                   from './modules/long_read_qc.nf'
-include { nanoq as nanoq_pre_filter }  from './modules/long_read_qc.nf'
-include { nanoq as nanoq_post_filter } from './modules/long_read_qc.nf'
-include { merge_nanoq_reports }        from './modules/long_read_qc.nf'
-include { index_ref }                  from './modules/alignment_variants.nf'
-include { bwa_mem }                    from './modules/alignment_variants.nf'
-include { minimap2 }                   from './modules/alignment_variants.nf'
-include { qualimap_bamqc }             from './modules/alignment_variants.nf'
-include { mpileup }                    from './modules/alignment_variants.nf'
-include { generate_low_coverage_bed }  from './modules/alignment_variants.nf'
-include { calculate_gene_coverage }    from './modules/alignment_variants.nf'
-include { pipeline_provenance }        from './modules/provenance.nf'
-include { collect_provenance }         from './modules/provenance.nf'
+include { fastp }                          from './modules/short_read_qc.nf'
+include { filtlong }                       from './modules/long_read_qc.nf'
+include { nanoq as nanoq_pre_filter }      from './modules/long_read_qc.nf'
+include { nanoq as nanoq_post_filter }     from './modules/long_read_qc.nf'
+include { merge_nanoq_reports }            from './modules/long_read_qc.nf'
+include { index_ref }                      from './modules/alignment_variants.nf'
+include { bwa_mem }                        from './modules/alignment_variants.nf'
+include { minimap2 }                       from './modules/alignment_variants.nf'
+include { qualimap_bamqc }                 from './modules/alignment_variants.nf'
+include { mpileup }                        from './modules/alignment_variants.nf'
+include { generate_low_coverage_bed }      from './modules/alignment_variants.nf'
+include { calculate_gene_coverage }        from './modules/alignment_variants.nf'
+include { pipeline_provenance }            from './modules/provenance.nf'
+include { collect_provenance }             from './modules/provenance.nf'
 
 workflow {
 
@@ -84,6 +84,9 @@ workflow {
     // At each step, we add another provenance file to the list using the << operator...
     // ...and then concatenate them all together in the 'collect_provenance' process.
     ch_provenance = ch_provenance.combine(ch_pipeline_provenance).map{ it -> [it[0], [it[1]]] }
+    ch_provenance = ch_provenance.join(hash_ref.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
+    ch_provenance = ch_provenance.join(hash_fastq_short.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
+    ch_provenance = ch_provenance.join(hash_fastq_long.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
     ch_provenance = ch_provenance.join(bwa_mem.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
     ch_provenance = ch_provenance.join(nanoq_pre_filter.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
     ch_provenance = ch_provenance.join(filtlong.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
