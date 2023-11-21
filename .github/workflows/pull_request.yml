@@ -14,7 +14,7 @@ jobs:
       run: mkdir artifacts
     - name: Cache Miniconda installation
       id: cache-miniconda
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       env:
         cache-name: cache-miniconda-installation
       with:
@@ -22,7 +22,7 @@ jobs:
         key: ${{ runner.os }}-build-${{ env.cache-name }}-miniconda3
     - name: Cache conda environment
       id: cache-conda-env
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       env:
         cache-name: cache-conda-env
       with:
