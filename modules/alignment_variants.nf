@@ -93,17 +93,22 @@ process qualimap_bamqc {
     tag { sample_id }
 
     publishDir  "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}_qualimap_alignment_qc.csv"
+    publishDir  "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}_qualimap_report.pdf"
 
     input:
     tuple val(sample_id), file(alignment)
 
     output:
     tuple val(sample_id), path("${sample_id}_qualimap_alignment_qc.csv"), emit: genome_results
+    tuple val(sample_id), path("${sample_id}_qualimap_report.pdf"), emit: report
     
     script:
     """
     qualimap bamqc \
 	--paint-chromosome-limits \
+	--collect-overlap-pairs \
+	--cov-hist-lim ${params.qualimap_coverage_histogram_limit} \
+	--output-genome-coverage ${sample_id}_genome_coverage.txt \
 	-nt ${task.cpus} \
 	-bam ${alignment[0]} \
 	-outformat PDF \
@@ -113,6 +118,8 @@ process qualimap_bamqc {
 	-s ${sample_id} \
 	${sample_id}_bamqc/genome_results.txt \
 	> ${sample_id}_qualimap_alignment_qc.csv
+
+    cp ${sample_id}_bamqc/report.pdf ${sample_id}_qualimap_report.pdf
     """
 }
 
@@ -120,6 +127,8 @@ process qualimap_bamqc {
 process mpileup {
 
     tag { sample_id }
+
+    publishDir "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}_depths.tsv"
 
     input:
     tuple val(sample_id), path(alignment), path(ref)
@@ -160,29 +169,6 @@ process generate_low_coverage_bed {
       --input ${depths} \
       --threshold ${params.min_depth} \
       > ${sample_id}_low_coverage_regions.bed
-    """
-}
-
-
-process calculate_gene_coverage {
-
-    tag { sample_id }
-
-    publishDir "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}_resistance_gene_coverage.csv"
-
-    input:
-    tuple val(sample_id), path(depths), path(resistance_genes_bed)
-
-    output:
-    tuple val(sample_id), path("${sample_id}_resistance_gene_coverage.csv")
-
-    script:
-    """
-    calculate_res_gene_depth_qc.py \
-      --bed ${resistance_genes_bed} \
-      --depth ${depths} \
-      --threshold ${params.min_depth} \
-      --output ${sample_id}_resistance_gene_coverage.csv
     """
 }
 

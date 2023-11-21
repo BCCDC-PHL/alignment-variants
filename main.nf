@@ -18,7 +18,6 @@ include { minimap2 }                       from './modules/alignment_variants.nf
 include { qualimap_bamqc }                 from './modules/alignment_variants.nf'
 include { mpileup }                        from './modules/alignment_variants.nf'
 include { generate_low_coverage_bed }      from './modules/alignment_variants.nf'
-include { calculate_gene_coverage }        from './modules/alignment_variants.nf'
 include { pipeline_provenance }            from './modules/provenance.nf'
 include { collect_provenance }             from './modules/provenance.nf'
 
