@@ -19,12 +19,15 @@ flowchart TD
   fastq_short[fastq_short]
   fastq_long[fastq_long]
   fastq_short --> fastp(fastp)
-  fastq_long --> nanoq_pre_filter(nanoq)
+  fastq_long --> nanoq_pre_filter("nanoq (pre-filter)")
   fastq_long --> filtlong(filtlong)
-  filtlong --> nanoq_post_filter(nanoq)
+  filtlong --> nanoq_post_filter("nanoq (post-filter)")
   ref --> bwa(bwa)
   fastp --> bwa
-  filtlong --> minimap2(minimap2)
+  ref --> minimap2(minimap2)
+  filtlong --> minimap2
+  bwa --> qualimap(qualimap_bamqc)
+  minimap2 --> qualimap
 ```
 
 ## Outputs
