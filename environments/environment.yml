@@ -1,4 +1,4 @@
-name: align-variants
+name: alignment-variants
 channels:
   - conda-forge
   - bioconda
@@ -6,6 +6,8 @@ channels:
 dependencies:
   - python=3
   - fastp=0.23.2
+  - filtlong=0.2.1
+  - nanoq=0.10.0
   - bwa=0.7.17
   - samtools=1.18
   - bcftools=1.18

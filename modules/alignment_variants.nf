@@ -1,35 +1,3 @@
-process fastp {
-
-    tag { sample_id }
-
-    publishDir "${params.outdir}/${sample_id}", pattern: "${sample_id}_fastp.{json,csv}", mode: 'copy'
-
-    input:
-    tuple val(sample_id), path(reads_1), path(reads_2)
-
-    output:
-    tuple val(sample_id), path("${sample_id}_fastp.json"), emit: fastp_json
-    tuple val(sample_id), path("${sample_id}_fastp.csv"), emit: fastp_csv
-    tuple val(sample_id), path("${sample_id}_trimmed_R1.fastq.gz"), path("${sample_id}_trimmed_R2.fastq.gz"), emit: reads
-    tuple val(sample_id), path("${sample_id}_fastp_provenance.yml"), emit: provenance
-
-    script:
-    """
-    printf -- "- process_name: fastp\\n" > ${sample_id}_fastp_provenance.yml
-    printf -- "  tool_name: fastp\\n  tool_version: \$(fastp --version 2>&1 | cut -d ' ' -f 2)\\n" >> ${sample_id}_fastp_provenance.yml
-
-    fastp \
-	--cut_tail \
-	-i ${reads_1} \
-	-I ${reads_2} \
-	-o ${sample_id}_trimmed_R1.fastq.gz \
-	-O ${sample_id}_trimmed_R2.fastq.gz
-
-    mv fastp.json ${sample_id}_fastp.json
-    fastp_json_to_csv.py -s ${sample_id} ${sample_id}_fastp.json > ${sample_id}_fastp.csv
-    """
-}
-
 process index_ref {
 
     tag { ref_filename }
@@ -65,6 +33,13 @@ process bwa_mem {
     script:
     bwa_threads = task.cpus - 8
     """
+    printf -- "- process_name: bwa_mem\\n" >> ${sample_id}_bwa_mem_provenance.yml
+    printf -- "  tools:\\n"                    >> ${sample_id}_bwa_mem_provenance.yml
+    printf -- "    - tool_name: bwa\\n"        >> ${sample_id}_bwa_mem_provenance.yml
+    printf -- "      tool_version: \$(bwa 2>&1 | grep 'Version' | cut -d ' ' -f 2)\\n"      >> ${sample_id}_bwa_mem_provenance.yml
+    printf -- "    - tool_name: samtools\\n"   >> ${sample_id}_bwa_mem_provenance.yml
+    printf -- "      tool_version: \$(samtools 2>&1 | grep 'Version' | cut -d ' ' -f 2)\\n" >> ${sample_id}_bwa_mem_provenance.yml
+
     bwa mem \
 	-t ${bwa_threads} \
 	-R "@RG\\tID:${sample_id}\\tSM:${sample_id}\\tPL:ILLUMINA" \
@@ -78,14 +53,7 @@ process bwa_mem {
 	| samtools markdup -r - - \
 	> ${sample_id}.bam
 
-    samtools index ${sample_id}.bam
-
-    printf -- "- process_name: \"bwa mem\"\\n" >> ${sample_id}_bwa_mem_provenance.yml
-    printf -- "  tools:\\n"                    >> ${sample_id}_bwa_mem_provenance.yml
-    printf -- "    - tool_name: bwa\\n"        >> ${sample_id}_bwa_mem_provenance.yml
-    printf -- "      tool_version: \$(bwa 2>&1 | grep 'Version' | cut -d ' ' -f 2)\\n"      >> ${sample_id}_bwa_mem_provenance.yml
-    printf -- "    - tool_name: samtools\\n"   >> ${sample_id}_bwa_mem_provenance.yml
-    printf -- "      tool_version: \$(samtools 2>&1 | grep 'Version' | cut -d ' ' -f 2)\\n" >> ${sample_id}_bwa_mem_provenance.yml
+    samtools index ${sample_id}.bam    
     """
 }
 
@@ -104,11 +72,17 @@ process minimap2 {
     tuple val(sample_id), path("${sample_id}_minimap2_provenance.yml"), emit: provenance
     
     script:
-    minimap2_threads = task.cpus - 8
     """
+    printf -- "- process_name: \"minimap2\"\\n" >> ${sample_id}_minimap2_provenance.yml
+    printf -- "  tools:\\n"                     >> ${sample_id}_minimap2_provenance.yml
+    printf -- "    - tool_name: minimap2\\n"    >> ${sample_id}_minimap2_provenance.yml
+    printf -- "      tool_version: \$(minimap2 --version)\\n"  >> ${sample_id}_minimap2_provenance.yml
+    
     minimap2 \
-	-t ${minimap2_threads} \
+	-t ${task.cpus} \
 	-ax map-ont \
+	${ref} \
+	${reads} \
 	> ${sample_id}.bam
     """
 }
