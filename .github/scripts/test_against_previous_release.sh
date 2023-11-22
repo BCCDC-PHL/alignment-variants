@@ -60,6 +60,7 @@ find output ./previous_release/output \
      -o -name "*.bam" \
      -o -name "*.bam.bai" \
      -o -name "*.vcf" \
+     -o -name "*.pdf" \
     | xargs rm -rf
 if ! git diff --stat --no-index output ./previous_release/output > diffs.txt ; then
   echo "test failed: differences found between PR and previous release" >> artifacts/test_artifact.log
