@@ -18,6 +18,7 @@ include { minimap2 }                       from './modules/alignment_variants.nf
 include { qualimap_bamqc }                 from './modules/alignment_variants.nf'
 include { mpileup }                        from './modules/alignment_variants.nf'
 include { generate_low_coverage_bed }      from './modules/alignment_variants.nf'
+include { percent_coverage_by_depth }      from './modules/alignment_variants.nf'
 include { pipeline_provenance }            from './modules/provenance.nf'
 include { collect_provenance }             from './modules/provenance.nf'
 
@@ -70,6 +71,8 @@ workflow {
     ch_depths = mpileup(ch_bwa_alignment.combine(ch_ref))
 
     generate_low_coverage_bed(ch_depths)
+
+    percent_coverage_by_depth(ch_depths)
 
     // Collect multi-sample outputs
     if (params.collect_outputs) {

@@ -172,6 +172,28 @@ process generate_low_coverage_bed {
     """
 }
 
+process percent_coverage_by_depth {
+
+    tag { sample_id }
+
+    publishDir "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}_percent_coverage_by_depth.csv"
+
+    input:
+    tuple val(sample_id), path(depths)
+
+    output:
+    tuple val(sample_id), path("${sample_id}_percent_coverage_by_depth.csv")
+
+    script:
+    """
+    percent_coverage_by_depth.py \
+	--sample-id ${sample_id} \
+	--input ${depths} \
+	--max-depth ${params.coverage_by_depth_limit} \
+	> ${sample_id}_percent_coverage_by_depth.csv
+    """
+}
+
 
 process freebayes {
     
