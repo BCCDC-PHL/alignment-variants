@@ -71,4 +71,4 @@ else
 fi
 
 # clean-up for following tests
-rm -rf previous_release && rm -rf output && rm -rf work && rm -rf .nextflow*
+rm -rf previous_release && rm -rf output && rm -rf .nextflow*
