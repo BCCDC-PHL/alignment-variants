@@ -55,7 +55,7 @@ cd ..
 # exclude files from comparison
 # and list differences
 echo "Compare ouputs of current PR vs those of previous release.." >> artifacts/test_artifact.log
-find results ./previous_release/results \
+find output ./previous_release/output \
      -name "*.fq.gz" \
      -o -name "*.bam" \
      -o -name "*.bam.bai" \
