@@ -13,6 +13,8 @@ NXF_VER=20.10.0 nextflow -quiet run ./main.nf \
        --fastq_input $PWD/.github/data/fastqs/ \
        --ref $PWD/.github/data/refs/MN908947.3/MN908947.3.fa \
        --min_depth 4 \
+       --qualimap_coverage_histogram_limit 20 \
+       --coverage_by_depth_limit 20 \
        --collect_outputs \
        --outdir $PWD/output \
        -with-trace $PWD/output/trace.tsv
@@ -39,6 +41,8 @@ NXF_VER=20.10.0 nextflow -quiet run ./main.nf \
        --fastq_input $PWD/../.github/data/fastqs/MN908947.3 \
        --ref $PWD/../.github/data/refs/MN908947.3/MN908947.3.fa \
        --min_depth 4 \
+       --qualimap_coverage_histogram_limit 20 \
+       --coverage_by_depth_limit 20 \
        --collect_outputs \
        --outdir $PWD/output \
        -with-trace $PWD/output/trace.tsv
