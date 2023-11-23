@@ -59,7 +59,7 @@ process bwa_mem {
     printf -- "        - parameter: -r\\n"     >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "          value: null\\n"       >> ${sample_id}_bwa_mem_provenance.yml
 
-    # -F 1540: exclude secondary, supplementary, and unmapped reads
+    # samtools view -F 1540: exclude secondary, supplementary, and unmapped reads
     bwa mem \
 	-t ${bwa_threads} \
 	-R "@RG\\tID:${sample_id}-ILLUMINA\\tSM:${sample_id}\\tPL:ILLUMINA" \
@@ -99,7 +99,21 @@ process minimap2 {
     printf -- "  tools:\\n"                     >> ${sample_id}_minimap2_provenance.yml
     printf -- "    - tool_name: minimap2\\n"    >> ${sample_id}_minimap2_provenance.yml
     printf -- "      tool_version: \$(minimap2 --version)\\n"  >> ${sample_id}_minimap2_provenance.yml
-    
+    printf -- "      parameters:\\n"            >> ${sample_id}_minimap2_provenance.yml
+    printf -- "        - parameter: -a\\n"      >> ${sample_id}_minimap2_provenance.yml
+    printf -- "          value: null\\n"     >> ${sample_id}_minimap2_provenance.yml
+    printf -- "        - parameter: -x\\n"      >> ${sample_id}_minimap2_provenance.yml
+    printf -- "          value: map-ont\\n"     >> ${sample_id}_minimap2_provenance.yml
+    printf -- "        - parameter: -MD\\n"      >> ${sample_id}_minimap2_provenance.yml
+    printf -- "          value: null\\n"     >> ${sample_id}_minimap2_provenance.yml
+    printf -- "    - tool_name: samtools\\n"    >> ${sample_id}_minimap2_provenance.yml
+    printf -- "      tool_version: \$(samtools 2>&1 | grep 'Version' | cut -d ' ' -f 2)\\n"  >> ${sample_id}_minimap2_provenance.yml
+    printf -- "      subcommand: view\\n"       >> ${sample_id}_minimap2_provenance.yml
+    printf -- "      parameters:\\n"            >> ${sample_id}_minimap2_provenance.yml
+    printf -- "        - parameter: -F\\n"      >> ${sample_id}_minimap2_provenance.yml
+    printf -- "          value: 1540\\n"        >> ${sample_id}_minimap2_provenance.yml
+
+    # samtools view -F 1540: exclude secondary, supplementary, and unmapped reads
     minimap2 \
 	-t ${minimap2_threads} \
 	-ax map-ont \
