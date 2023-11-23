@@ -7,10 +7,10 @@ export PATH=/opt/nextflow/bin:$PATH
 
 # write test log as github Action artifact
 echo Nextflow run current PR >> artifacts/test_artifact.log
-NXF_VER=20.10.0 nextflow -quiet run ./main.nf \
+NXF_VER=21.04.3 nextflow -quiet run ./main.nf \
        -profile conda \
        --cache ~/.conda/envs \
-       --fastq_input $PWD/.github/data/fastqs/ \
+       --fastq_input $PWD/.github/data/fastqs/MN908947.3 \
        --ref $PWD/.github/data/refs/MN908947.3/MN908947.3.fa \
        --min_depth 4 \
        --qualimap_coverage_histogram_limit 50 \
@@ -35,7 +35,7 @@ sed -i s'/cpus = 16/cpus = 2/'g nextflow.config
 sed -i s"/memory = '36G'/memory = '256M'/"g nextflow.config
 
 echo Nextflow run previous release.. >> ../artifacts/test_artifact.log
-NXF_VER=20.10.0 nextflow -quiet run ./main.nf \
+NXF_VER=21.04.3 nextflow -quiet run ./main.nf \
        -profile conda \
        --cache ~/.conda/envs \
        --fastq_input $PWD/../.github/data/fastqs/MN908947.3 \
