@@ -103,6 +103,8 @@ process minimap2 {
     minimap2 \
 	-t ${minimap2_threads} \
 	-ax map-ont \
+	-R "@RG\\tID:${sample_id}-ONT\\tSM:${sample_id}\\tPL:ONT" \
+	-MD \
 	${ref} \
 	${reads} \
 	| samtools view -@ 2 -h -F 1540 \
