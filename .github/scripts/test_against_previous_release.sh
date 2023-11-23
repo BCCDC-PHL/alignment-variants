@@ -11,12 +11,15 @@ sed -i s'/cpus = 12/cpus = 2/'g nextflow.config
 sed -i s'/cpus = 16/cpus = 2/'g nextflow.config
 sed -i s"/memory = '36G'/memory = '256M'/"g nextflow.config
 
+mkdir -p artifacts
+
 # write test log as github Action artifact
 echo Nextflow run current PR >> artifacts/test_artifact.log
 NXF_VER=21.04.3 nextflow -quiet run ./main.nf \
        -profile conda \
        --cache ~/.conda/envs \
        --fastq_input $PWD/.github/data/fastqs/MN908947.3 \
+       --fastq_input_long $PWD/.github/data/fastqs/MN908947.3 \
        --ref $PWD/.github/data/refs/MN908947.3/MN908947.3.fa \
        --min_depth 4 \
        --qualimap_coverage_histogram_limit 50 \
@@ -24,8 +27,6 @@ NXF_VER=21.04.3 nextflow -quiet run ./main.nf \
        --collect_outputs \
        --outdir $PWD/output \
        -with-trace $PWD/output/trace.tsv
-
-mkdir -p artifacts
 
 cp .nextflow.log artifacts/pull_request.nextflow.log
 cp output/trace.tsv artifacts/pull_request.trace.tsv
@@ -47,6 +48,7 @@ NXF_VER=21.04.3 nextflow -quiet run ./main.nf \
        -profile conda \
        --cache ~/.conda/envs \
        --fastq_input $PWD/../.github/data/fastqs/MN908947.3 \
+       --fastq_input_long $PWD/../.github/data/fastqs/MN908947.3 \
        --ref $PWD/../.github/data/refs/MN908947.3/MN908947.3.fa \
        --min_depth 4 \
        --qualimap_coverage_histogram_limit 50 \
