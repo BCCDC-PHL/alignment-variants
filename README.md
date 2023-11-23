@@ -1,5 +1,7 @@
 # alignment-variants
 
+[![Tests](https://github.com/dfornika/alignment-variants/actions/workflows/pull_request.yml/badge.svg)](https://github.com/dfornika/alignment-variants/actions/workflows/pull_request.yml)
+
 A pipeline to align (map) reads against a reference genome, and call variants based on the alignment.
 
 ## Usage
