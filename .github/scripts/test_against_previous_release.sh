@@ -35,7 +35,7 @@ cp -r output artifacts/pull_request_results
 # run tests against previous previous_release to compare outputs 
 git clone https://github.com/dfornika/alignment-variants.git previous_release 
 cd previous_release
-git checkout a4191cb0a313e146d2e1ee79bb347e0e5e133085
+git checkout aa3f1e9d08c87edcff8103a2d235b6a8316db284
 
 # the github runner only has 2 cpus available, so replace for that commit required:
 sed -i s'/cpus = 24/cpus = 2/'g nextflow.config
