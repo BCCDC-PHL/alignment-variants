@@ -254,13 +254,33 @@ process freebayes {
     publishDir "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}_${short_long}_freebayes.vcf"
 
     input:
-    tuple val(sample_id), path(alignment), val(short_long), path(ref), path(ref_index)
+    tuple val(sample_id), path(alignment), val(short_long), path(ref)
 
     output:
     tuple val(sample_id), path("${sample_id}_${short_long}_freebayes.vcf")
 
     script:
     """
+    printf -- "- process_name: freebayes\\n" >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "  tools:\\n"                         >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "    - tool_name: freebayes\\n"        >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "      tool_version: \$(freebayes --version | head -n 1 | cut -d ' ' -f 3)\\n" >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "      parameters:\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "        - parameter: --ploidy\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "          value: 1\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "        - parameter: --min-base-quality\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "          value: ${params.min_base_qual_for_variant_calling}\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "        - parameter: --min-mapping-quality\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "          value: ${params.min_mapping_qual_for_variant_calling}\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "        - parameter: --min-alternate-count\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "          value: 2\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "        - parameter: --min-alternate-fraction\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "          value: ${params.min_alternate_fraction_for_variant_calling}\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "        - parameter: --report-genotype-likelihood\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "          value: null\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
+
+    samtools faidx ${ref}
+
     freebayes \
 	--fasta-reference ${ref} \
 	--bam ${alignment[0]} \
@@ -268,7 +288,7 @@ process freebayes {
 	--min-base-quality ${params.min_base_qual_for_variant_calling} \
 	--min-mapping-quality ${params.min_mapping_qual_for_variant_calling} \
 	--min-alternate-count 2 \
-	--min-alternate-fraction ${params.min_af_for_variant_calling} \
+	--min-alternate-fraction ${params.min_alternate_fraction_for_variant_calling} \
 	--report-genotype-likelihood-max \
 	> ${sample_id}_${short_long}_freebayes.vcf
     """

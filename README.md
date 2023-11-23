@@ -30,6 +30,12 @@ flowchart TD
   filtlong --> minimap2
   bwa --> qualimap(qualimap_bamqc)
   minimap2 --> qualimap
+  bwa -> freebayes(freebayes)
+  minimap2 -> freebayes
+  bwa --> samtools_mpileup(samtools_mpileup)
+  minimap2 --> samtools_mpileup(samtools_mpileup)
+  samtools_mpileup --> generate_low_coverage_bed(generate_low_coverage_bed)
+  samtools_mpileup --> percent_coverage_by_depth(percent_coverage_by_depth)
 ```
 
 ## Outputs

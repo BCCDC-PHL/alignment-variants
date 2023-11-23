@@ -15,6 +15,7 @@ include { merge_nanoq_reports }            from './modules/long_read_qc.nf'
 include { index_ref }                      from './modules/alignment_variants.nf'
 include { bwa_mem }                        from './modules/alignment_variants.nf'
 include { minimap2 }                       from './modules/alignment_variants.nf'
+include { freebayes }                      from './modules/alignment_variants.nf'
 include { qualimap_bamqc }                 from './modules/alignment_variants.nf'
 include { samtools_mpileup }               from './modules/alignment_variants.nf'
 include { generate_low_coverage_bed }      from './modules/alignment_variants.nf'
@@ -71,6 +72,8 @@ workflow {
     ch_alignments = ch_bwa_alignment.concat(ch_minimap2_alignment)
 
     qualimap_bamqc(ch_alignments)
+
+    freebayes(ch_alignments.combine(ch_ref))
 
     samtools_mpileup(ch_alignments.combine(ch_ref))
 
