@@ -25,6 +25,8 @@ NXF_VER=21.04.3 nextflow -quiet run ./main.nf \
        --outdir $PWD/output \
        -with-trace $PWD/output/trace.tsv
 
+mkdir -p artifacts
+
 cp .nextflow.log artifacts/pull_request.nextflow.log
 cp output/trace.tsv artifacts/pull_request.trace.tsv
 cp -r output artifacts/pull_request_results
@@ -67,6 +69,7 @@ find output ./previous_release/output \
      -o -name "*.bam.bai" \
      -o -name "*.vcf" \
      -o -name "*.pdf" \
+     -o -name "trace.tsv" \
     | xargs rm -rf
 if ! git diff --stat --no-index output ./previous_release/output > diffs.txt ; then
   echo "test failed: differences found between PR and previous release" >> artifacts/test_artifact.log
