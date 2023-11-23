@@ -151,6 +151,7 @@ process qualimap_bamqc {
 
     qualimap_bamqc_genome_results_to_csv.py \
 	-s ${sample_id} \
+	--read-type ${short_long} \
 	${sample_id}_${short_long}_bamqc/genome_results.txt \
 	> ${sample_id}_${short_long}_qualimap_alignment_qc.csv
 
@@ -178,6 +179,7 @@ process samtools_mpileup {
     printf -- "  tools:\\n"                         >> ${sample_id}_${short_long}_samtools_mpileup_provenance.yml
     printf -- "    - tool_name: samtools\\n"        >> ${sample_id}_${short_long}_samtools_mpileup_provenance.yml
     printf -- "      tool_version: \$(samtools --version | head -n 1 | cut -d ' ' -f 2)\\n" >> ${sample_id}_${short_long}_samtools_mpileup_provenance.yml
+    printf -- "      subcommand: mpileup\\n"        >> ${sample_id}_${short_long}_samtools_mpileup_provenance.yml
     printf -- "      parameters:\\n"                >> ${sample_id}_${short_long}_samtools_mpileup_provenance.yml
     printf -- "        - parameter: -a\\n"          >> ${sample_id}_${short_long}_samtools_mpileup_provenance.yml
     printf -- "          value: null\\n"            >> ${sample_id}_${short_long}_samtools_mpileup_provenance.yml

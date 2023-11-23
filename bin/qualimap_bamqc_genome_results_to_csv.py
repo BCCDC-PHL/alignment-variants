@@ -7,7 +7,10 @@ import sys
 
 def main(args):
     with open(args.qualimap_bamqc_genome_results, 'r') as f:
-        output_data = { 'sample_id': args.sample_id }
+        output_data = {
+            'sample_id': args.sample_id,
+            'read_type': args.read_type,
+        }
         for line in f:
             line = line.strip()
             if line.startswith('median insert size'):
@@ -41,6 +44,7 @@ def main(args):
 
     output_fieldnames = [
         'sample_id',
+        'read_type',
         'median_insert_size',
         'mean_coverage',
         'stdev_coverage',
@@ -58,11 +62,10 @@ def main(args):
     writer.writerow(output_data)
 
 
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('qualimap_bamqc_genome_results')
     parser.add_argument('-s', '--sample-id')
+    parser.add_argument('-t', '--read-type', choices=['short', 'long'], default='short')
     args = parser.parse_args()
     main(args)
