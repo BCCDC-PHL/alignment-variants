@@ -16,7 +16,7 @@ include { index_ref }                      from './modules/alignment_variants.nf
 include { bwa_mem }                        from './modules/alignment_variants.nf'
 include { minimap2 }                       from './modules/alignment_variants.nf'
 include { qualimap_bamqc }                 from './modules/alignment_variants.nf'
-include { mpileup }                        from './modules/alignment_variants.nf'
+include { samtools_mpileup }               from './modules/alignment_variants.nf'
 include { generate_low_coverage_bed }      from './modules/alignment_variants.nf'
 include { percent_coverage_by_depth }      from './modules/alignment_variants.nf'
 include { pipeline_provenance }            from './modules/provenance.nf'
@@ -64,11 +64,17 @@ workflow {
 
     ch_bwa_alignment = bwa_mem.out.alignment
 
-    ch_minimap2_alignment = minimap2(ch_nanopore_fastq.combine(ch_indexed_ref))
+    minimap2(ch_nanopore_fastq.combine(ch_indexed_ref))
+    
+    ch_minimap2_alignment = minimap2.out.alignment
 
-    qualimap_bamqc(ch_bwa_alignment)
+    ch_alignments = ch_bwa_alignment.concat(ch_minimap2_alignment)
 
-    ch_depths = mpileup(ch_bwa_alignment.combine(ch_ref))
+    qualimap_bamqc(ch_alignments)
+
+    samtools_mpileup(ch_alignments.combine(ch_ref))
+
+    ch_depths = samtools_mpileup.out.depths
 
     generate_low_coverage_bed(ch_depths)
 
@@ -94,7 +100,9 @@ workflow {
     ch_provenance = ch_provenance.join(filtlong.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
     ch_provenance = ch_provenance.join(nanoq_post_filter.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
     ch_provenance = ch_provenance.join(minimap2.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
+    ch_provenance = ch_provenance.join(qualimap_bamqc.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
+    ch_provenance = ch_provenance.join(samtools_mpileup.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
 
-    collect_provenance(ch_provenance)
+    collect_provenance(ch_provenance.view())
   
 }
