@@ -60,13 +60,15 @@ workflow {
     filtlong(ch_nanopore_fastq)
 
     nanoq_post_filter(filtlong.out.filtered_reads.combine(Channel.of("post_filter")))
-    
+
+    merge_nanoq_reports(nanoq_pre_filter.out.report.join(nanoq_post_filter.out.report))
+
     bwa_mem(fastp.out.reads.combine(ch_indexed_ref))
 
     ch_bwa_alignment = bwa_mem.out.alignment
 
     minimap2(ch_nanopore_fastq.combine(ch_indexed_ref))
-    
+
     ch_minimap2_alignment = minimap2.out.alignment
 
     ch_alignments = ch_bwa_alignment.concat(ch_minimap2_alignment)
@@ -105,6 +107,7 @@ workflow {
     ch_provenance = ch_provenance.join(minimap2.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
     ch_provenance = ch_provenance.join(qualimap_bamqc.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
     ch_provenance = ch_provenance.join(samtools_mpileup.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
+    ch_provenance = ch_provenance.join(freebayes.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
 
     collect_provenance(ch_provenance)
   

@@ -13,6 +13,29 @@ nextflow run dfornika/alignment-variants \
   --outdir /path/to/outputs
 ```
 
+Including the `--collect_outputs` flag will add the `collected_fastp.csv` and `collected_qualimap_bamqc.csv` outputs, which include results for all samples collected into a single file.
+
+```
+nextflow run dfornika/alignment-variants \
+  --ref /path/to/ref.fa \
+  --fastq_input /path/to/fastqs \
+  --collect_outputs \
+  --outdir /path/to/outputs
+```
+
+An alternative filename prefix can be set for the collected outputs using the `--collected_outputs_prefix` flag:
+
+```
+nextflow run dfornika/alignment-variants \
+  --ref /path/to/ref.fa \
+  --fastq_input /path/to/fastqs \
+  --collect_outputs \
+  --collected_outputs_prefix 'test' \
+  --outdir /path/to/outputs
+```
+
+...which would produce files named: `test_fastp.csv` and `test_qualimap_bamqc.csv`.
+
 If long reads are available, they can be included with the `--fastq_input_long` flag:
 
 ```
@@ -101,4 +124,3 @@ output
 ├── collected_fastp.csv
 └── collected_qualimap_bamqc.csv
 ```
-

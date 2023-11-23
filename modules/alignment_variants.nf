@@ -46,7 +46,7 @@ process bwa_mem {
     printf -- "          value: 1540\\n"       >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "    - tool_name: samtools\\n"   >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "      tool_version: \$(samtools 2>&1 | grep 'Version' | cut -d ' ' -f 2)\\n" >> ${sample_id}_bwa_mem_provenance.yml
-    printf -- "      subcommand: fixmate\\n"      >> ${sample_id}_bwa_mem_provenance.yml
+    printf -- "      subcommand: fixmate\\n"   >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "      parameters:\\n"           >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "        - parameter: -m\\n"     >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "          value: null\\n"       >> ${sample_id}_bwa_mem_provenance.yml
@@ -101,11 +101,11 @@ process minimap2 {
     printf -- "      tool_version: \$(minimap2 --version)\\n"  >> ${sample_id}_minimap2_provenance.yml
     printf -- "      parameters:\\n"            >> ${sample_id}_minimap2_provenance.yml
     printf -- "        - parameter: -a\\n"      >> ${sample_id}_minimap2_provenance.yml
-    printf -- "          value: null\\n"     >> ${sample_id}_minimap2_provenance.yml
+    printf -- "          value: null\\n"        >> ${sample_id}_minimap2_provenance.yml
     printf -- "        - parameter: -x\\n"      >> ${sample_id}_minimap2_provenance.yml
     printf -- "          value: map-ont\\n"     >> ${sample_id}_minimap2_provenance.yml
-    printf -- "        - parameter: -MD\\n"      >> ${sample_id}_minimap2_provenance.yml
-    printf -- "          value: null\\n"     >> ${sample_id}_minimap2_provenance.yml
+    printf -- "        - parameter: -MD\\n"     >> ${sample_id}_minimap2_provenance.yml
+    printf -- "          value: null\\n"        >> ${sample_id}_minimap2_provenance.yml
     printf -- "    - tool_name: samtools\\n"    >> ${sample_id}_minimap2_provenance.yml
     printf -- "      tool_version: \$(samtools 2>&1 | grep 'Version' | cut -d ' ' -f 2)\\n"  >> ${sample_id}_minimap2_provenance.yml
     printf -- "      subcommand: view\\n"       >> ${sample_id}_minimap2_provenance.yml
@@ -147,14 +147,14 @@ process qualimap_bamqc {
     
     script:
     """
-    printf -- "- process_name: \"qualimap_bamqc\"\\n" >> ${sample_id}_${short_long}_qualimap_bamqc_provenance.yml
-    printf -- "  tools:\\n"                           >> ${sample_id}_${short_long}_qualimap_bamqc_provenance.yml
-    printf -- "    - tool_name: qualimap\\n"          >> ${sample_id}_${short_long}_qualimap_bamqc_provenance.yml
+    printf -- "- process_name: \"qualimap_bamqc\"\\n"  >> ${sample_id}_${short_long}_qualimap_bamqc_provenance.yml
+    printf -- "  tools:\\n"                            >> ${sample_id}_${short_long}_qualimap_bamqc_provenance.yml
+    printf -- "    - tool_name: qualimap\\n"           >> ${sample_id}_${short_long}_qualimap_bamqc_provenance.yml
     printf -- "      tool_version: \$(qualimap bamqc | head | grep QualiMap | cut -d ' ' -f 2)\\n" >> ${sample_id}_${short_long}_qualimap_bamqc_provenance.yml
-    printf -- "      parameters:\\n"                  >> ${sample_id}_${short_long}_qualimap_bamqc_provenance.yml
-    printf -- "        - parameter: --collect-overlap-pairs\\n"                  >> ${sample_id}_${short_long}_qualimap_bamqc_provenance.yml
-    printf -- "          value: null\\n"              >> ${sample_id}_${short_long}_qualimap_bamqc_provenance.yml
-    printf -- "        - parameter: --cov-hist-lim\\n"                  >> ${sample_id}_${short_long}_qualimap_bamqc_provenance.yml
+    printf -- "      parameters:\\n"                   >> ${sample_id}_${short_long}_qualimap_bamqc_provenance.yml
+    printf -- "        - parameter: --collect-overlap-pairs\\n" >> ${sample_id}_${short_long}_qualimap_bamqc_provenance.yml
+    printf -- "          value: null\\n"               >> ${sample_id}_${short_long}_qualimap_bamqc_provenance.yml
+    printf -- "        - parameter: --cov-hist-lim\\n" >> ${sample_id}_${short_long}_qualimap_bamqc_provenance.yml
     printf -- "          value: ${params.qualimap_coverage_histogram_limit}\\n" >> ${sample_id}_${short_long}_qualimap_bamqc_provenance.yml
     
     qualimap bamqc \
@@ -203,8 +203,8 @@ process samtools_mpileup {
     printf -- "          value: null\\n"            >> ${sample_id}_${short_long}_samtools_mpileup_provenance.yml
     printf -- "        - parameter: --min-BQ\\n"    >> ${sample_id}_${short_long}_samtools_mpileup_provenance.yml
     printf -- "          value: 0\\n"               >> ${sample_id}_${short_long}_samtools_mpileup_provenance.yml
-    printf -- "        - parameter: --count-orphans\\n"   >> ${sample_id}_${short_long}_samtools_mpileup_provenance.yml
-    printf -- "          value: null\\n"                  >> ${sample_id}_${short_long}_samtools_mpileup_provenance.yml
+    printf -- "        - parameter: --count-orphans\\n" >> ${sample_id}_${short_long}_samtools_mpileup_provenance.yml
+    printf -- "          value: null\\n"                >> ${sample_id}_${short_long}_samtools_mpileup_provenance.yml
 
     samtools faidx ${ref}
 
@@ -279,21 +279,21 @@ process freebayes {
     """
     printf -- "- process_name: freebayes\\n" >> ${sample_id}_${short_long}_freebayes_provenance.yml
     printf -- "  tools:\\n"                         >> ${sample_id}_${short_long}_freebayes_provenance.yml
-    printf -- "    - tool_name: freebayes\\n"        >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "    - tool_name: freebayes\\n"       >> ${sample_id}_${short_long}_freebayes_provenance.yml
     printf -- "      tool_version: \$(freebayes --version | head -n 1 | cut -d ' ' -f 3)\\n" >> ${sample_id}_${short_long}_freebayes_provenance.yml
     printf -- "      parameters:\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
-    printf -- "        - parameter: --ploidy\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
-    printf -- "          value: 1\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
-    printf -- "        - parameter: --min-base-quality\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
-    printf -- "          value: ${params.min_base_qual_for_variant_calling}\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
-    printf -- "        - parameter: --min-mapping-quality\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
-    printf -- "          value: ${params.min_mapping_qual_for_variant_calling}\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
-    printf -- "        - parameter: --min-alternate-count\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
-    printf -- "          value: 2\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
-    printf -- "        - parameter: --min-alternate-fraction\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
-    printf -- "          value: ${params.min_alternate_fraction_for_variant_calling}\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
-    printf -- "        - parameter: --report-genotype-likelihood\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
-    printf -- "          value: null\\n"                >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "        - parameter: --ploidy\\n"    >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "          value: 1\\n"               >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "        - parameter: --min-base-quality\\n" >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "          value: ${params.min_base_qual_for_variant_calling}\\n" >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "        - parameter: --min-mapping-quality\\n" >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "          value: ${params.min_mapping_qual_for_variant_calling}\\n" >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "        - parameter: --min-alternate-count\\n" >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "          value: 2\\n"               >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "        - parameter: --min-alternate-fraction\\n" >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "          value: ${params.min_alternate_fraction_for_variant_calling}\\n" >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "        - parameter: --report-genotype-likelihood\\n" >> ${sample_id}_${short_long}_freebayes_provenance.yml
+    printf -- "          value: null\\n"            >> ${sample_id}_${short_long}_freebayes_provenance.yml
 
     samtools faidx ${ref}
 

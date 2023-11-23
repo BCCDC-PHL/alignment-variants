@@ -15,7 +15,7 @@ mkdir -p artifacts
 
 # write test log as github Action artifact
 echo Nextflow run current PR >> artifacts/test_artifact.log
-NXF_VER=21.04.3 nextflow -quiet run ./main.nf \
+NXF_VER=21.04.3 nextflow run ./main.nf \
        -profile conda \
        --cache ~/.conda/envs \
        --fastq_input $PWD/.github/data/fastqs/MN908947.3 \
@@ -44,7 +44,7 @@ sed -i s'/cpus = 16/cpus = 2/'g nextflow.config
 sed -i s"/memory = '36G'/memory = '256M'/"g nextflow.config
 
 echo Nextflow run previous release.. >> ../artifacts/test_artifact.log
-NXF_VER=21.04.3 nextflow -quiet run ./main.nf \
+NXF_VER=21.04.3 nextflow run ./main.nf \
        -profile conda \
        --cache ~/.conda/envs \
        --fastq_input $PWD/../.github/data/fastqs/MN908947.3 \
