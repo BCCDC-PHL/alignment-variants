@@ -108,6 +108,8 @@ process minimap2 {
 	| samtools view -@ 2 -h -F 1540 \
 	| samtools sort -@ 2 -l 0 -m 1000M -O bam \
 	> ${sample_id}_${short_long}.bam
+
+    samtools index ${sample_id}_${short_long}.bam
     """
 }
 
