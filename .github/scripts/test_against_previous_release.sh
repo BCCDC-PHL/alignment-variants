@@ -5,6 +5,12 @@ set -eo pipefail
 export PATH=/opt/miniconda3/bin:$PATH
 export PATH=/opt/nextflow/bin:$PATH
 
+# the github runner only has 2 cpus available, so replace for that commit required:
+sed -i s'/cpus = 24/cpus = 2/'g nextflow.config
+sed -i s'/cpus = 12/cpus = 2/'g nextflow.config
+sed -i s'/cpus = 16/cpus = 2/'g nextflow.config
+sed -i s"/memory = '36G'/memory = '256M'/"g nextflow.config
+
 # write test log as github Action artifact
 echo Nextflow run current PR >> artifacts/test_artifact.log
 NXF_VER=21.04.3 nextflow -quiet run ./main.nf \
