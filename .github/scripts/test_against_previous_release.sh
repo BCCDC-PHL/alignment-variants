@@ -72,6 +72,7 @@ find output ./previous_release/output \
      -o -name "*.vcf" \
      -o -name "*.pdf" \
      -o -name "trace.tsv" \
+     -o -name "*_provenance.yml" \
     | xargs rm -rf
 if ! git diff --stat --no-index output ./previous_release/output > diffs.txt ; then
   echo "test failed: differences found between PR and previous release" >> artifacts/test_artifact.log
