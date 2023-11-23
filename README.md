@@ -1,13 +1,13 @@
 # alignment-variants
 
-[![Tests](https://github.com/dfornika/alignment-variants/actions/workflows/pull_request.yml/badge.svg)](https://github.com/dfornika/alignment-variants/actions/workflows/pull_request.yml)
+[![Tests](https://github.com/BCCDC-PHL/alignment-variants/actions/workflows/pull_request.yml/badge.svg)](https://github.com/BCCDC-PHL/alignment-variants/actions/workflows/pull_request.yml)
 
 A pipeline to align (map) reads against a reference genome, and call variants based on the alignment.
 
 ## Usage
 
 ```
-nextflow run dfornika/alignment-variants \
+nextflow run BCCDC-PHL/alignment-variants \
   --ref /path/to/ref.fa \
   --fastq_input /path/to/fastqs \
   --outdir /path/to/outputs
@@ -16,7 +16,7 @@ nextflow run dfornika/alignment-variants \
 Including the `--collect_outputs` flag will add the `collected_fastp.csv` and `collected_qualimap_bamqc.csv` outputs, which include results for all samples collected into a single file.
 
 ```
-nextflow run dfornika/alignment-variants \
+nextflow run BCCDC-PHL/alignment-variants \
   --ref /path/to/ref.fa \
   --fastq_input /path/to/fastqs \
   --collect_outputs \
@@ -26,7 +26,7 @@ nextflow run dfornika/alignment-variants \
 An alternative filename prefix can be set for the collected outputs using the `--collected_outputs_prefix` flag:
 
 ```
-nextflow run dfornika/alignment-variants \
+nextflow run BCCDC-PHL/alignment-variants \
   --ref /path/to/ref.fa \
   --fastq_input /path/to/fastqs \
   --collect_outputs \
@@ -39,7 +39,7 @@ nextflow run dfornika/alignment-variants \
 If long reads are available, they can be included with the `--fastq_input_long` flag:
 
 ```
-nextflow run dfornika/alignment-variants \
+nextflow run BCCDC-PHL/alignment-variants \
   --ref /path/to/ref.fa \
   --fastq_input /path/to/fastqs \
   --fastq_input_long /path/to/long_fastqs \
@@ -49,7 +49,7 @@ nextflow run dfornika/alignment-variants \
 Alternatively, a `samplesheet.csv` file can be provided:
 
 ```
-nextflow run dfornika/alignment-variants \
+nextflow run BCCDC-PHL/alignment-variants \
   --ref /path/to/ref.fa \
   --samplesheet_input /path/to/samplesheet.csv \
   --outdir /path/to/outputs
