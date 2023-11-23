@@ -273,7 +273,8 @@ process freebayes {
     tuple val(sample_id), path(alignment), val(short_long), path(ref)
 
     output:
-    tuple val(sample_id), path("${sample_id}_${short_long}_freebayes.vcf")
+    tuple val(sample_id), path("${sample_id}_${short_long}_freebayes.vcf"), emit: variants
+    tuple val(sample_id), path("${sample_id}_${short_long}_freebayes_provenance.yml"), emit: provenance
 
     script:
     """
