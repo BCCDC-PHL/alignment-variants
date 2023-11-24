@@ -1,0 +1,3 @@
+ID,R1,R2,LONG,REF
+MN908497.3-2486,.github/data/fastqs/MN908947.3/MN908947.3-2486_R1.fastq.gz,.github/data/fastqs/MN908947.3/MN908947.3-2486_R2.fastq.gz,.github/data/fastqs/MN908947.3/MN908947.3-2486_RL.fastq.gz,.github/data/refs/MN908947.3/MN908947.3.fa
+MN908497.3-66dc,.github/data/fastqs/MN908947.3/MN908947.3-66dc_R1.fastq.gz,.github/data/fastqs/MN908947.3/MN908947.3-66dc_R2.fastq.gz,.github/data/fastqs/MN908947.3/MN908947.3-66dc_RL.fastq.gz,.github/data/refs/MN908947.3_with_snps/MN908947.3.fa
