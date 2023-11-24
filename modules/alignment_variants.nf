@@ -1,12 +1,12 @@
 process index_ref {
 
-    tag { ref_filename }
+    tag { sample_id + ' / ' + ref_filename }
 
     input:
-    path(ref)
+    tuple val(sample_id), path(ref)
 
     output:
-    tuple path('ref.fa'), path('ref.fa.*')
+    tuple val(sample_id), path('ref.fa'), path('ref.fa.*')
 
     script:
     ref_filename = ref.getName()
@@ -20,14 +20,15 @@ process index_ref {
 process bwa_mem {
 
     tag { sample_id }
-    
     publishDir "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}_${short_long}.{bam,bam.bai}"
+    publishDir "${params.outdir}/${sample_id}", mode: 'copy', pattern: "ref.fa"
 
     input:
     tuple val(sample_id), path(reads_1), path(reads_2), path(ref), path(ref_index)
 
     output:
     tuple val(sample_id), path("${sample_id}_${short_long}.{bam,bam.bai}"), val(short_long), emit: alignment
+    tuple val(sample_id), path(ref), emit: ref
     tuple val(sample_id), path("${sample_id}_bwa_mem_provenance.yml"), emit: provenance
     
     script:

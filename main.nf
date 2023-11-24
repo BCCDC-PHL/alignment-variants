@@ -33,12 +33,13 @@ workflow {
     if (params.samplesheet_input != 'NO_FILE') {
 	ch_illumina_fastq = Channel.fromPath(params.samplesheet_input).splitCsv(header: true).map{ it -> [it['ID'], it['R1'], it['R2']] }
 	ch_nanopore_fastq = Channel.fromPath(params.samplesheet_input).splitCsv(header: true).map{ it -> [it['ID'], it['LONG']] }
+	ch_ref = Channel.fromPath(params.samplesheet_input).splitCsv(header: true).map{ it -> [it['ID'], it['REF']] }
     } else {
 	ch_illumina_fastq = Channel.fromFilePairs( params.fastq_illumina_search_path, flat: true ).map{ it -> [it[0].split('_')[0], it[1], it[2]] }.unique{ it -> it[0] }
 	ch_nanopore_fastq = Channel.fromPath( params.fastq_nanopore_search_path ).map{ it -> [it.getName().split('_')[0], it] }.unique{ it -> it[0] }
     }
 
-    ch_ref = Channel.fromPath(params.ref)
+    
 
     main:
     ch_illumina_sample_ids = ch_illumina_fastq.map{ it -> it[0] }
@@ -47,7 +48,11 @@ workflow {
 
     ch_provenance = ch_sample_ids
 
-    hash_ref(ch_sample_ids.combine(ch_ref).combine(Channel.of("ref-fasta")))
+    if (params.ref != 'NO_FILE') {
+	ch_ref = ch_sample_ids.combine(Channel.fromPath(params.ref))
+    }
+
+    hash_ref(ch_ref.combine(Channel.of("ref-fasta")))
     hash_fastq_short(ch_illumina_fastq.map{ it -> [it[0], [it[1], it[2]]] }.combine(Channel.of("fastq-input-short")))
     hash_fastq_long(ch_nanopore_fastq.combine(Channel.of("fastq-input-long")))
     
@@ -63,11 +68,11 @@ workflow {
 
     merge_nanoq_reports(nanoq_pre_filter.out.report.join(nanoq_post_filter.out.report))
 
-    bwa_mem(fastp.out.reads.combine(ch_indexed_ref))
+    bwa_mem(fastp.out.reads.join(ch_indexed_ref))
 
     ch_bwa_alignment = bwa_mem.out.alignment
 
-    minimap2(ch_nanopore_fastq.combine(ch_indexed_ref))
+    minimap2(ch_nanopore_fastq.join(ch_indexed_ref))
 
     ch_minimap2_alignment = minimap2.out.alignment
 
@@ -75,9 +80,9 @@ workflow {
 
     qualimap_bamqc(ch_alignments)
 
-    freebayes(ch_alignments.combine(ch_ref))
+    freebayes(ch_alignments.join(ch_ref))
 
-    samtools_mpileup(ch_alignments.combine(ch_ref))
+    samtools_mpileup(ch_alignments.join(ch_ref))
 
     ch_depths = samtools_mpileup.out.depths
 

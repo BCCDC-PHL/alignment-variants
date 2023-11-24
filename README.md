@@ -69,6 +69,8 @@ R2
 LONG
 ```
 
+...if separate reference sequences are to be used for each sample, a `REF` field can be included, with a path to the reference genome for each sample. When including the `REF` field in the samplesheet, the `--ref` flag can be omitted.
+
 ## Pipeline
 
 ```mermaid
