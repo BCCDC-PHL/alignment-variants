@@ -49,16 +49,16 @@ def main(args):
                 general_error_rate = line.split('=')[1].strip()
                 output_data['error_rate'] = round(float(general_error_rate), 2)
             if line.startswith('number of mismatches'):
-                number_of_mismatches = line.split('=')[1].strip()
+                number_of_mismatches = line.split('=')[1].strip().replace(',', '')
                 output_data['number_of_mismatches'] = int(number_of_mismatches)
             if line.startswith('number of insertions'):
-                number_of_insertions = line.split('=')[1].strip()
+                number_of_insertions = line.split('=')[1].strip().replace(',', '')
                 output_data['number_of_insertions'] = int(number_of_insertions)
             if line.startswith('mapped reads with insertion percentage'):
                 mapped_reads_with_insertion_percentage = line.split('=')[1].strip().replace('%', '')
                 output_data['mapped_reads_with_insertion_percentage'] = round(float(mapped_reads_with_insertion_percentage), 2)
             if line.startswith('number of deletions'):
-                number_of_deletions = line.split('=')[1].strip()
+                number_of_deletions = line.split('=')[1].strip().replace(',', '')
                 output_data['number_of_deletions'] = int(number_of_deletions)
             if line.startswith('mapped reads with deletion percentage'):
                 mapped_reads_with_deletion_percentage = line.split('=')[1].strip().replace('%', '')
