@@ -110,7 +110,10 @@ output
 │   ├── SAMPLE-1_short_depths.tsv
 │   ├── SAMPLE-1_short_freebayes.vcf
 │   ├── SAMPLE-1_short_low_coverage_regions.bed
-│   └── SAMPLE-1_short_percent_coverage_by_depth.csv
+│   ├── SAMPLE-1_short_percent_coverage_by_depth.csv
+│   ├── SAMPLE-1_short_qualimap_alignment_qc.csv
+│   ├── SAMPLE-1_short_qualimap_genome_results.txt
+│   └── SAMPLE-1_short_qualimap_report.pdf
 ├── SAMPLE-2
 │   ├── SAMPLE-2_20231123140112_provenance.yml
 │   ├── SAMPLE-2_fastp.csv
@@ -122,7 +125,10 @@ output
 │   ├── SAMPLE-2_short_depths.tsv
 │   ├── SAMPLE-2_short_freebayes.vcf
 │   ├── SAMPLE-2_short_low_coverage_regions.bed
-│   └── SAMPLE-2_short_percent_coverage_by_depth.csv
+│   ├── SAMPLE-2_short_percent_coverage_by_depth.csv
+│   ├── SAMPLE-2_short_qualimap_alignment_qc.csv
+│   ├── SAMPLE-2_short_qualimap_genome_results.txt
+│   └── SAMPLE-2_short_qualimap_report.pdf
 ├── collected_fastp.csv
 └── collected_qualimap_bamqc.csv
 ```
