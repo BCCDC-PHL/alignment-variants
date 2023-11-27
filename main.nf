@@ -93,7 +93,7 @@ workflow {
     // Collect multi-sample outputs
     if (params.collect_outputs) {
 	fastp.out.fastp_csv.map{ it -> it[1] }.collectFile(keepHeader: true, sort: { it.text }, name: "${params.collected_outputs_prefix}_fastp.csv", storeDir: "${params.outdir}")
-	qualimap_bamqc.out.genome_results.map{ it -> it[1] }.collectFile(keepHeader: true, sort: { it.text }, name: "${params.collected_outputs_prefix}_qualimap_bamqc.csv", storeDir: "${params.outdir}")
+	qualimap_bamqc.out.alignment_qc.map{ it -> it[1] }.collectFile(keepHeader: true, sort: { it.text }, name: "${params.collected_outputs_prefix}_qualimap_alignment_qc.csv", storeDir: "${params.outdir}")
     }
 
     // Collect Provenance
