@@ -182,6 +182,48 @@ process qualimap_bamqc {
 }
 
 
+process samtools_stats {
+
+    tag { sample_id + ' / ' + short_long }
+
+    publishDir "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}_${short_long}_samtools_stats*"
+
+    input:
+    tuple val(sample_id), path(alignment), val(short_long)
+
+    output:
+    tuple val(sample_id), path("${sample_id}_${short_long}_samtools_stats.txt"), val(short_long), emit: stats
+    tuple val(sample_id), path("${sample_id}_${short_long}_samtools_stats_summary.txt"), val(short_long), emit: stats_summary
+    tuple val(sample_id), path("${sample_id}_${short_long}_samtools_stats_summary.csv"), val(short_long), emit: stats_summary_csv
+    tuple val(sample_id), path("${sample_id}_${short_long}_samtools_stats_insert_sizes.tsv"), val(short_long), emit: insert_sizes
+    tuple val(sample_id), path("${sample_id}_${short_long}_samtools_stats_coverage_distribution.tsv"), val(short_long), emit: coverage_distribution
+    tuple val(sample_id), path("${sample_id}_${short_long}_samtools_stats_provenance.yml"), emit: provenance
+
+    script:
+    """
+    printf -- "- process_name: samtools_stats\\n" >> ${sample_id}_${short_long}_samtools_stats_provenance.yml
+    printf -- "  tools:\\n"                       >> ${sample_id}_${short_long}_samtools_stats_provenance.yml
+    printf -- "    - tool_name: samtools\\n"      >> ${sample_id}_${short_long}_samtools_stats_provenance.yml
+    printf -- "      tool_version: \$(samtools --version | head -n 1 | cut -d ' ' -f 2)\\n" >> ${sample_id}_${short_long}_samtools_stats_provenance.yml
+    printf -- "      subcommand: stats\\n"        >> ${sample_id}_${short_long}_samtools_stats_provenance.yml
+
+    samtools stats \
+	--threads ${task.cpus} \
+	${alignment[0]} > ${sample_id}_${short_long}_samtools_stats.txt
+
+    grep '^SN' ${sample_id}_${short_long}_samtools_stats.txt | cut -f 2-  > ${sample_id}_${short_long}_samtools_stats_summary.txt
+
+    parse_samtools_stats_summary.py -i ${sample_id}_${short_long}_samtools_stats_summary.txt -s ${sample_id} > ${sample_id}_${short_long}_samtools_stats_summary.csv
+
+    echo "insert_size,pairs_total,inward_oriented_pairs,outward_oriented_pairs,other_pairs" | tr ',' '\t' > ${sample_id}_${short_long}_samtools_stats_insert_sizes.tsv
+    grep '^IS' ${sample_id}_${short_long}_samtools_stats.txt | cut -f 2-  >> ${sample_id}_${short_long}_samtools_stats_insert_sizes.tsv
+
+    echo "coverage,depth" | tr ',' '\t' > ${sample_id}_${short_long}_samtools_stats_coverage_distribution.tsv
+    grep '^COV' ${sample_id}_${short_long}_samtools_stats.txt | cut -f 2- >> ${sample_id}_${short_long}_samtools_stats_coverage_distribution.tsv	
+    """
+}
+
+
 process samtools_mpileup {
 
     tag { sample_id + ' / ' + short_long }
