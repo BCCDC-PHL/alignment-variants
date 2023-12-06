@@ -27,7 +27,7 @@ process bwa_mem {
     tuple val(sample_id), path(reads_1), path(reads_2), path(ref), path(ref_index)
 
     output:
-    tuple val(sample_id), path("${sample_id}_${short_long}.{bam,bam.bai}"), val(short_long), emit: alignment
+    tuple val(sample_id), val(short_long), path("${sample_id}_${short_long}.{bam,bam.bai}"), emit: alignment
     tuple val(sample_id), path(ref), emit: ref
     tuple val(sample_id), path("${sample_id}_bwa_mem_provenance.yml"), emit: provenance
     
@@ -89,7 +89,7 @@ process minimap2 {
     tuple val(sample_id), path(reads), path(ref), path(ref_index)
 
     output:
-    tuple val(sample_id), path("${sample_id}_${short_long}.{bam,bam.bai}"), val(short_long), emit: alignment
+    tuple val(sample_id), val(short_long), path("${sample_id}_${short_long}.{bam,bam.bai}"), emit: alignment
     tuple val(sample_id), path("${sample_id}_minimap2_provenance.yml"), emit: provenance
     
     script:
@@ -140,12 +140,12 @@ process qualimap_bamqc {
     publishDir  "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}_${short_long}_qualimap_report.pdf"
 
     input:
-    tuple val(sample_id), file(alignment), val(short_long)
+    tuple val(sample_id), val(short_long), file(alignment)
 
     output:
-    tuple val(sample_id), path("${sample_id}_${short_long}_qualimap_alignment_qc.csv"), emit: alignment_qc
-    tuple val(sample_id), path("${sample_id}_${short_long}_qualimap_report.pdf"), emit: report
-    tuple val(sample_id), path("${sample_id}_${short_long}_qualimap_genome_results.txt"), emit: genome_results
+    tuple val(sample_id), val(short_long), path("${sample_id}_${short_long}_qualimap_alignment_qc.csv"), emit: alignment_qc
+    tuple val(sample_id), val(short_long), path("${sample_id}_${short_long}_qualimap_report.pdf"), emit: report
+    tuple val(sample_id), val(short_long), path("${sample_id}_${short_long}_qualimap_genome_results.txt"), emit: genome_results
     tuple val(sample_id), path("${sample_id}_${short_long}_qualimap_bamqc_provenance.yml"), emit: provenance
     
     script:
@@ -189,15 +189,15 @@ process samtools_stats {
     publishDir "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}_${short_long}_samtools_stats*"
 
     input:
-    tuple val(sample_id), path(alignment), val(short_long)
+    tuple val(sample_id), val(short_long), path(alignment)
 
     output:
-    tuple val(sample_id), path("${sample_id}_${short_long}_samtools_stats.txt"), val(short_long), emit: stats
-    tuple val(sample_id), path("${sample_id}_${short_long}_samtools_stats_summary.txt"), val(short_long), emit: stats_summary
-    tuple val(sample_id), path("${sample_id}_${short_long}_samtools_stats_summary.csv"), val(short_long), emit: stats_summary_csv
-    tuple val(sample_id), path("${sample_id}_${short_long}_samtools_stats_insert_sizes.tsv"), val(short_long), emit: insert_sizes
-    tuple val(sample_id), path("${sample_id}_${short_long}_samtools_stats_coverage_distribution.tsv"), val(short_long), emit: coverage_distribution
-    tuple val(sample_id), path("${sample_id}_${short_long}_samtools_stats_provenance.yml"), emit: provenance
+    tuple val(sample_id), val(short_long), path("${sample_id}_${short_long}_samtools_stats.txt"), emit: stats
+    tuple val(sample_id), val(short_long), path("${sample_id}_${short_long}_samtools_stats_summary.txt"), emit: stats_summary
+    tuple val(sample_id), val(short_long), path("${sample_id}_${short_long}_samtools_stats_summary.csv"), emit: stats_summary_csv
+    tuple val(sample_id), val(short_long), path("${sample_id}_${short_long}_samtools_stats_insert_sizes.tsv"), emit: insert_sizes
+    tuple val(sample_id), val(short_long), path("${sample_id}_${short_long}_samtools_stats_coverage_distribution.tsv"), emit: coverage_distribution
+    tuple val(sample_id),  path("${sample_id}_${short_long}_samtools_stats_provenance.yml"), emit: provenance
 
     script:
     """
@@ -224,6 +224,30 @@ process samtools_stats {
 }
 
 
+process combine_alignment_qc {
+
+    tag { sample_id + ' / ' + short_long }
+
+    publishDir "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}_${short_long}_combined_alignment_qc.csv"
+
+    input:
+    tuple val(sample_id), val(short_long), path(qualimap_genome_results_csv), path(samtools_stats_summary_csv)
+
+    output:
+    tuple val(sample_id), val(short_long), path("${sample_id}_${short_long}_combined_alignment_qc.csv")
+
+    script:
+    """
+    combine_alignment_qc.py \
+	--sample-id ${sample_id} \
+	--read-type ${short_long} \
+	--qualimap-bamqc-genome-results ${qualimap_genome_results_csv} \
+	--samtools-stats-summary ${samtools_stats_summary_csv} \
+	> ${sample_id}_${short_long}_combined_alignment_qc.csv
+    """
+}
+
+
 process samtools_mpileup {
 
     tag { sample_id + ' / ' + short_long }
@@ -231,10 +255,10 @@ process samtools_mpileup {
     publishDir "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}_${short_long}_depths.tsv"
 
     input:
-    tuple val(sample_id), path(alignment), val(short_long), path(ref)
+    tuple val(sample_id), val(short_long), path(alignment), path(ref)
 
     output:
-    tuple val(sample_id), path("${sample_id}_${short_long}_depths.tsv"), val(short_long), emit: depths
+    tuple val(sample_id), val(short_long), path("${sample_id}_${short_long}_depths.tsv"), emit: depths
     tuple val(sample_id), path("${sample_id}_${short_long}_samtools_mpileup_provenance.yml"), emit: provenance
 
     script:
@@ -272,7 +296,7 @@ process generate_low_coverage_bed {
     publishDir "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}_${short_long}_low_coverage_regions.bed"
 
     input:
-    tuple val(sample_id), path(depths), val(short_long)
+    tuple val(sample_id), val(short_long), path(depths)
 
     output:
     tuple val(sample_id), path("${sample_id}_${short_long}_low_coverage_regions.bed")
@@ -293,7 +317,7 @@ process percent_coverage_by_depth {
     publishDir "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}_${short_long}_percent_coverage_by_depth.csv"
 
     input:
-    tuple val(sample_id), path(depths), val(short_long)
+    tuple val(sample_id), val(short_long), path(depths)
 
     output:
     tuple val(sample_id), path("${sample_id}_${short_long}_percent_coverage_by_depth.csv")
@@ -316,7 +340,7 @@ process freebayes {
     publishDir "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}_${short_long}_freebayes.vcf"
 
     input:
-    tuple val(sample_id), path(alignment), val(short_long), path(ref)
+    tuple val(sample_id), val(short_long), path(alignment), path(ref)
 
     output:
     tuple val(sample_id), path("${sample_id}_${short_long}_freebayes.vcf"), emit: variants
