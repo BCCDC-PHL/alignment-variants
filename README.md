@@ -89,10 +89,13 @@ flowchart TD
   filtlong --> minimap2
   minimap2 --> alignments
   alignments --> qualimap(qualimap_bamqc)
+  alignments --> samtools_stats(samtools_stats)
   alignments --> freebayes(freebayes)
   alignments --> samtools_mpileup(samtools_mpileup)
   samtools_mpileup --> generate_low_coverage_bed(generate_low_coverage_bed)
   samtools_mpileup --> percent_coverage_by_depth(percent_coverage_by_depth)
+  qualimap --> combined_alignment_qc(combined_alignment_qc)
+  samtools_stats --> combined_alignment_qc
 ```
 
 ## Outputs

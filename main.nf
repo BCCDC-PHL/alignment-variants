@@ -18,6 +18,8 @@ include { minimap2 }                       from './modules/alignment_variants.nf
 include { freebayes }                      from './modules/alignment_variants.nf'
 include { qualimap_bamqc }                 from './modules/alignment_variants.nf'
 include { samtools_mpileup }               from './modules/alignment_variants.nf'
+include { samtools_stats }                 from './modules/alignment_variants.nf'
+include { combine_alignment_qc }           from './modules/alignment_variants.nf'
 include { generate_low_coverage_bed }      from './modules/alignment_variants.nf'
 include { percent_coverage_by_depth }      from './modules/alignment_variants.nf'
 include { pipeline_provenance }            from './modules/provenance.nf'
@@ -84,6 +86,10 @@ workflow {
 
     samtools_mpileup(ch_alignments.join(ch_ref))
 
+    samtools_stats(ch_alignments)
+
+    combine_alignment_qc(qualimap_bamqc.out.alignment_qc.join(samtools_stats.out.stats_summary_csv, by: [0, 1]))
+
     ch_depths = samtools_mpileup.out.depths
 
     generate_low_coverage_bed(ch_depths)
@@ -93,7 +99,9 @@ workflow {
     // Collect multi-sample outputs
     if (params.collect_outputs) {
 	fastp.out.fastp_csv.map{ it -> it[1] }.collectFile(keepHeader: true, sort: { it.text }, name: "${params.collected_outputs_prefix}_fastp.csv", storeDir: "${params.outdir}")
-	qualimap_bamqc.out.alignment_qc.map{ it -> it[1] }.collectFile(keepHeader: true, sort: { it.text }, name: "${params.collected_outputs_prefix}_qualimap_alignment_qc.csv", storeDir: "${params.outdir}")
+	qualimap_bamqc.out.alignment_qc.map{ it -> it[2] }.collectFile(keepHeader: true, sort: { it.text }, name: "${params.collected_outputs_prefix}_qualimap_alignment_qc.csv", storeDir: "${params.outdir}")
+	samtools_stats.out.stats_summary_csv.map{ it -> it[2] }.collectFile(keepHeader: true, sort: { it.text }, name: "${params.collected_outputs_prefix}_samtools_stats_summary.csv", storeDir: "${params.outdir}")
+	combine_alignment_qc.out.map{ it -> it[2] }.collectFile(keepHeader: true, sort: { it.text }, name: "${params.collected_outputs_prefix}_combined_alignment_qc.csv", storeDir: "${params.outdir}")
     }
 
     // Collect Provenance
@@ -112,6 +120,7 @@ workflow {
     ch_provenance = ch_provenance.join(minimap2.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
     ch_provenance = ch_provenance.join(qualimap_bamqc.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
     ch_provenance = ch_provenance.join(samtools_mpileup.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
+    ch_provenance = ch_provenance.join(samtools_stats.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
     ch_provenance = ch_provenance.join(freebayes.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
 
     collect_provenance(ch_provenance)

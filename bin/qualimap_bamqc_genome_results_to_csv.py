@@ -24,15 +24,6 @@ def main(args):
             if line.startswith('number of secondary alignments'):
                 num_secondary_alignments = int(line.split('=')[1].strip().replace(',', ''))
                 output_data['num_secondary_alignments'] = num_secondary_alignments
-            if line.startswith('mean insert size'):
-                mean_insert_size = line.split('=')[1].strip().replace(',', '')
-                output_data['mean_insert_size'] = float(mean_insert_size)
-            if line.startswith('median insert size'):
-                median_insert_size = line.split('=')[1].strip().replace(',', '')
-                output_data['median_insert_size'] = float(median_insert_size)
-            if line.startswith('std insert size'):
-                stdev_insert_size = line.split('=')[1].strip().replace(',', '')
-                output_data['stdev_insert_size'] = float(stdev_insert_size)
             if line.startswith('duplication rate'):
                 duplication_rate = line.split('=')[1].strip().replace('%', '')
                 output_data['duplication_rate_percent'] = round(float(duplication_rate), 2)
@@ -91,9 +82,6 @@ def main(args):
         'num_reads',
         'num_mapped_reads',
         'percent_mapped_reads',
-        'mean_insert_size',
-        'median_insert_size',
-        'stdev_insert_size',
         'mean_mapping_quality',
         'error_rate',
         'number_of_mismatches',
