@@ -80,7 +80,7 @@ def main(args):
     output_fields += samtools_fields
     output_fields += qualimap_fields
   
-    writer = csv.DictWriter(sys.stdout, fieldnames=output_fields, delimiter=',', quoting=csv.QUOTE_MINIMAL, extrasaction='ignore')
+    writer = csv.DictWriter(sys.stdout, dialect='unix', fieldnames=output_fields, quoting=csv.QUOTE_MINIMAL, extrasaction='ignore')
     writer.writeheader()
     writer.writerow(combined_data)
     
