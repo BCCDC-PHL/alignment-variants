@@ -160,7 +160,9 @@ process qualimap_bamqc {
     printf -- "        - parameter: --cov-hist-lim\\n" >> ${sample_id}_${short_long}_qualimap_bamqc_provenance.yml
     printf -- "          value: ${params.qualimap_coverage_histogram_limit}\\n" >> ${sample_id}_${short_long}_qualimap_bamqc_provenance.yml
     
-    qualimap bamqc \
+    qualimap \
+	--java-mem-size=${params.qualimap_memory} \
+	bamqc \
 	--paint-chromosome-limits \
 	--collect-overlap-pairs \
 	--cov-hist-lim ${params.qualimap_coverage_histogram_limit} \
