@@ -33,7 +33,7 @@ workflow {
     ch_pipeline_provenance = pipeline_provenance(ch_pipeline_name.combine(ch_pipeline_version))
 
     if (params.samplesheet_input != 'NO_FILE') {
-	ch_illumina_fastq = Channel.fromPath(params.samplesheet_input).splitCsv(header: true).map{ it -> [it['ID'], it['R1'], it['R2']] }
+	ch_illumina_fastq = Channel.fromPath(params.samplesheet_input).splitCsv(header: true).map{ it -> [it['ID'], it['R1'], it['R2']] }.filter{ it -> it[1] != null || it[2] != null }
 	ch_nanopore_fastq = Channel.fromPath(params.samplesheet_input).splitCsv(header: true).map{ it -> [it['ID'], it['LONG']] }.filter{ it -> it[1] != null }
 	ch_ref = Channel.fromPath(params.samplesheet_input).splitCsv(header: true).map{ it -> [it['ID'], it['REF']] }
     } else {
