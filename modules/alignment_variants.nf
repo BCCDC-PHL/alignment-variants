@@ -34,6 +34,9 @@ process bwa_mem {
     script:
     bwa_threads = task.cpus - 8
     short_long = "short"
+    samtools_view_filter_flags = ${params.skip_alignment_cleaning} ? "0" : "1540"
+    samtools_fixmate_remove_secondary_and_unmapped = ${params.skip_alignment_cleaning} ? "" : "-r"
+    samtools_markdup_remove_duplicates = ${params.skip_alignment_cleaning} ? "" : "-r"
     """
     printf -- "- process_name: bwa_mem\\n"     >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "  tools:\\n"                    >> ${sample_id}_bwa_mem_provenance.yml
@@ -44,7 +47,7 @@ process bwa_mem {
     printf -- "      subcommand: view\\n"      >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "      parameters:\\n"           >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "        - parameter: -F\\n"     >> ${sample_id}_bwa_mem_provenance.yml
-    printf -- "          value: 1540\\n"       >> ${sample_id}_bwa_mem_provenance.yml
+    printf -- "          value: ${samtools_view_filter_flags}\\n" >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "    - tool_name: samtools\\n"   >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "      tool_version: \$(samtools 2>&1 | grep 'Version' | cut -d ' ' -f 2)\\n" >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "      subcommand: fixmate\\n"   >> ${sample_id}_bwa_mem_provenance.yml
@@ -60,18 +63,17 @@ process bwa_mem {
     printf -- "        - parameter: -r\\n"     >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "          value: null\\n"       >> ${sample_id}_bwa_mem_provenance.yml
 
-    # samtools view -F 1540: exclude secondary, supplementary, and unmapped reads
     bwa mem \
 	-t ${bwa_threads} \
 	-R "@RG\\tID:${sample_id}-ILLUMINA\\tSM:${sample_id}\\tPL:ILLUMINA" \
 	${ref} \
 	${reads_1} \
 	${reads_2} \
-	| samtools view -@ 2 -h -F 1540 \
-	| samtools sort -@ 2 -l 0 -m 1000M -n \
-        | samtools fixmate -mr - - \
+	| samtools view -@ 2 -h -F ${samtools_view_filter_flags} \
+        | samtools sort -@ 2 -l 0 -m 1000M -n \
+        | samtools fixmate -m ${samtools_fixmate_remove_secondary_and_unmapped} - - \
 	| samtools sort -@ 2 -l 0 -m 1000M \
-	| samtools markdup -r - - \
+	| samtools markdup ${samtools_markdup_remove_duplicates} - - \
 	> ${sample_id}_${short_long}.bam
 
     samtools index ${sample_id}_${short_long}.bam
@@ -95,6 +97,7 @@ process minimap2 {
     script:
     short_long = "long"
     minimap2_threads = task.cpus - 4
+    samtools_view_filter_flags = ${params.skip_alignment_cleaning} ? "0" : "1540"
     """
     printf -- "- process_name: \"minimap2\"\\n" >> ${sample_id}_minimap2_provenance.yml
     printf -- "  tools:\\n"                     >> ${sample_id}_minimap2_provenance.yml
@@ -112,9 +115,8 @@ process minimap2 {
     printf -- "      subcommand: view\\n"       >> ${sample_id}_minimap2_provenance.yml
     printf -- "      parameters:\\n"            >> ${sample_id}_minimap2_provenance.yml
     printf -- "        - parameter: -F\\n"      >> ${sample_id}_minimap2_provenance.yml
-    printf -- "          value: 1540\\n"        >> ${sample_id}_minimap2_provenance.yml
+    printf -- "          value: ${samtools_view_filter_flags}\\n"        >> ${sample_id}_minimap2_provenance.yml
 
-    # samtools view -F 1540: exclude secondary, supplementary, and unmapped reads
     minimap2 \
 	-t ${minimap2_threads} \
 	-ax map-ont \
@@ -122,7 +124,7 @@ process minimap2 {
 	-MD \
 	${ref} \
 	${reads} \
-	| samtools view -@ 2 -h -F 1540 \
+	| samtools view -@ 2 -h -F ${samtools_view_filter_flags} \
 	| samtools sort -@ 2 -l 0 -m 1000M -O bam \
 	> ${sample_id}_${short_long}.bam
 
