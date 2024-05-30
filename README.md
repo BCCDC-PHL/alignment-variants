@@ -104,6 +104,25 @@ LONG
 
 ...if separate reference sequences are to be used for each sample, a `REF` field can be included, with a path to the reference genome for each sample. When including the `REF` field in the samplesheet, the `--ref` flag can be omitted.
 
+### Alignment Cleaning
+
+By default, alignments will be cleaned as described below. Alignment cleaning is optional, and can be skipped using the `--skip_alignment_cleaning` flag.
+
+Immediately after alignment, the following filters are applied using `samtools view` with the `-F 1548` flag.
+
+This translates to removing reads that meet these criteria:
+
+- read unmapped (0x4)
+- mate unmapped (0x8)*
+- read fails platform/vendor quality checks (0x200)
+- read is PCR or optical duplicate (0x400)
+
+See the [explain-sam-flags](https://broadinstitute.github.io/picard/explain-flags.html) site for more details on these flags.
+
+After that, secondary and unmapped reads are removed using the `-r` flag of [samtools fixmate](http://www.htslib.org/doc/samtools-fixmate.html)
+
+And duplicates are removed using the `-r` flag of [samtools markdup](http://www.htslib.org/doc/samtools-markdup.html)
+
 ## Outputs
 
 ```

@@ -34,9 +34,9 @@ process bwa_mem {
     script:
     bwa_threads = task.cpus - 8
     short_long = "short"
-    samtools_view_filter_flags = ${params.skip_alignment_cleaning} ? "0" : "1540"
-    samtools_fixmate_remove_secondary_and_unmapped = ${params.skip_alignment_cleaning} ? "" : "-r"
-    samtools_markdup_remove_duplicates = ${params.skip_alignment_cleaning} ? "" : "-r"
+    samtools_view_filter_flags = params.skip_alignment_cleaning ? "0" : "1548"
+    samtools_fixmate_remove_secondary_and_unmapped = params.skip_alignment_cleaning ? "" : "-r"
+    samtools_markdup_remove_duplicates = params.skip_alignment_cleaning ? "" : "-r"
     """
     printf -- "- process_name: bwa_mem\\n"     >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "  tools:\\n"                    >> ${sample_id}_bwa_mem_provenance.yml
@@ -97,7 +97,7 @@ process minimap2 {
     script:
     short_long = "long"
     minimap2_threads = task.cpus - 4
-    samtools_view_filter_flags = ${params.skip_alignment_cleaning} ? "0" : "1540"
+    samtools_view_filter_flags = params.skip_alignment_cleaning ? "0" : "1540"
     """
     printf -- "- process_name: \"minimap2\"\\n" >> ${sample_id}_minimap2_provenance.yml
     printf -- "  tools:\\n"                     >> ${sample_id}_minimap2_provenance.yml
