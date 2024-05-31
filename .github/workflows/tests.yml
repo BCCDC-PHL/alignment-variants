@@ -28,7 +28,7 @@ jobs:
     - name: Create ART Read-Simulation Environment
       run: bash .github/scripts/create_art_environment.sh
     - name: Download Assemblies
-      run: bash .github/scripts/download_assemblies.sh
+      run: bash .github/scripts/download_refs.sh
     - name: Simulate Reads
       run: bash .github/scripts/simulate_reads.sh
     - name: Run Pipeline
