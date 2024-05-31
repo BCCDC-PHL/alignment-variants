@@ -1,6 +1,6 @@
 # alignment-variants
 
-[![Tests](https://github.com/BCCDC-PHL/alignment-variants/actions/workflows/pull_request.yml/badge.svg)](https://github.com/BCCDC-PHL/alignment-variants/actions/workflows/pull_request.yml)
+[![Tests](https://github.com/BCCDC-PHL/alignment-variants/actions/workflows/tests.yml/badge.svg)](https://github.com/BCCDC-PHL/alignment-variants/actions/workflows/tests.yml)
 
 A pipeline to align (map) reads against a reference genome, and call variants based on the alignment.
 
