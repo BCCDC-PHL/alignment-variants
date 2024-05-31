@@ -16,5 +16,6 @@ nextflow run main.nf \
 	 --outdir .github/data/test_output \
 	 --min_depth 5 \
 	 --ref .github/data/refs/NC_000962.3.fa \
+	 --collect_outputs \
 	 -with-report .github/data/test_output/nextflow_report.html \
  	 -with-trace .github/data/test_output/nextflow_trace.tsv
