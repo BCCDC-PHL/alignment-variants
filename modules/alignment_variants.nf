@@ -54,14 +54,18 @@ process bwa_mem {
     printf -- "      parameters:\\n"           >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "        - parameter: -m\\n"     >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "          value: null\\n"       >> ${sample_id}_bwa_mem_provenance.yml
+    if [ ! "${params.skip_alignment_cleaning}" == "true" ]; then
     printf -- "        - parameter: -r\\n"     >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "          value: null\\n"       >> ${sample_id}_bwa_mem_provenance.yml
+    fi
     printf -- "    - tool_name: samtools\\n"   >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "      tool_version: \$(samtools 2>&1 | grep 'Version' | cut -d ' ' -f 2)\\n" >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "      subcommand: markdup\\n"      >> ${sample_id}_bwa_mem_provenance.yml
+    if [ ! "${params.skip_alignment_cleaning}" == "true" ]; then
     printf -- "      parameters:\\n"           >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "        - parameter: -r\\n"     >> ${sample_id}_bwa_mem_provenance.yml
     printf -- "          value: null\\n"       >> ${sample_id}_bwa_mem_provenance.yml
+    fi
 
     bwa mem \
 	-t ${bwa_threads} \
@@ -190,7 +194,7 @@ process samtools_stats {
 
     tag { sample_id + ' / ' + short_long }
 
-    publishDir "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}_${short_long}_samtools_stats*"
+    publishDir "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}_${short_long}_samtools_stats*.{txt,tsv,csv}"
 
     input:
     tuple val(sample_id), val(short_long), path(alignment)

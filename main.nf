@@ -26,11 +26,15 @@ include { pipeline_provenance }            from './modules/provenance.nf'
 include { collect_provenance }             from './modules/provenance.nf'
 
 workflow {
+    ch_workflow_metadata = Channel.value([
+	workflow.sessionId,
+	workflow.runName,
+	workflow.manifest.name,
+	workflow.manifest.version,
+	workflow.start,
+    ])
 
-    ch_pipeline_name = Channel.of(workflow.manifest.name)
-    ch_pipeline_version = Channel.of(workflow.manifest.version)
-
-    ch_pipeline_provenance = pipeline_provenance(ch_pipeline_name.combine(ch_pipeline_version))
+    ch_pipeline_provenance = pipeline_provenance(ch_workflow_metadata)
 
     if (params.samplesheet_input != 'NO_FILE') {
 	ch_illumina_fastq = Channel.fromPath(params.samplesheet_input).splitCsv(header: true).map{ it -> [it['ID'], it['R1'], it['R2']] }.filter{ it -> it[1] != null || it[2] != null }
@@ -109,19 +113,26 @@ workflow {
     // [sample_id, [provenance_file_1.yml, provenance_file_2.yml, provenance_file_3.yml...]]
     // At each step, we add another provenance file to the list using the << operator...
     // ...and then concatenate them all together in the 'collect_provenance' process.
-    ch_provenance = ch_provenance.combine(ch_pipeline_provenance).map{ it -> [it[0], [it[1]]] }
-    ch_provenance = ch_provenance.join(hash_ref.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
-    ch_provenance = ch_provenance.join(hash_fastq_short.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
-    ch_provenance = ch_provenance.join(hash_fastq_long.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
-    ch_provenance = ch_provenance.join(bwa_mem.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
-    ch_provenance = ch_provenance.join(nanoq_pre_filter.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
-    ch_provenance = ch_provenance.join(filtlong.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
-    ch_provenance = ch_provenance.join(nanoq_post_filter.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
-    ch_provenance = ch_provenance.join(minimap2.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
-    ch_provenance = ch_provenance.join(qualimap_bamqc.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
-    ch_provenance = ch_provenance.join(samtools_mpileup.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
-    ch_provenance = ch_provenance.join(samtools_stats.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
-    ch_provenance = ch_provenance.join(freebayes.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
+    ch_provenance = ch_provenance.combine(ch_pipeline_provenance).map{ it ->        [it[0], [it[1]]] }
+    ch_provenance = ch_provenance.join(hash_ref.out.provenance).map{ it ->          [it[0], it[1] << it[2]] }
+    ch_provenance = ch_provenance.join(hash_fastq_short.out.provenance).map{ it ->  [it[0], it[1] << it[2]] }
+    // Check the length of the collected nanopore sample IDs to determine if we need to collect nanopore provenance
+    // I need to pull the value out of the channel and convert it to a list to get the length
+    ch_illumina_sample_ids.toList().size().view()
+    if (false) {
+	ch_provenance = ch_provenance.join(hash_fastq_long.out.provenance).map{ it ->   [it[0], it[1] << it[2]] }
+    }
+    ch_provenance = ch_provenance.join(bwa_mem.out.provenance).map{ it ->           [it[0], it[1] << it[2]] }
+    if (false) {
+	ch_provenance = ch_provenance.join(nanoq_pre_filter.out.provenance).map{ it ->  [it[0], it[1] << it[2]] }
+	ch_provenance = ch_provenance.join(filtlong.out.provenance).map{ it ->          [it[0], it[1] << it[2]] }
+	ch_provenance = ch_provenance.join(nanoq_post_filter.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
+	ch_provenance = ch_provenance.join(minimap2.out.provenance).map{ it ->          [it[0], it[1] << it[2]] }
+    }
+    ch_provenance = ch_provenance.join(qualimap_bamqc.out.provenance).map{ it ->    [it[0], it[1] << it[2]] }
+    ch_provenance = ch_provenance.join(samtools_mpileup.out.provenance).map{ it ->  [it[0], it[1] << it[2]] }
+    ch_provenance = ch_provenance.join(samtools_stats.out.provenance).map{ it ->    [it[0], it[1] << it[2]] }
+    ch_provenance = ch_provenance.join(freebayes.out.provenance).map{ it ->         [it[0], it[1] << it[2]] }
 
     collect_provenance(ch_provenance)
   
