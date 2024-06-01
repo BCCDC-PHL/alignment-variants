@@ -69,13 +69,14 @@ nextflow run BCCDC-PHL/alignment-variants \
 
 ...which would produce files named: `test_fastp.csv` and `test_qualimap_bamqc.csv`.
 
-If long reads are available, they can be included with the `--fastq_input_long` flag:
+If long reads are available, they can be included with the `--fastq_input_long` and `--align_long_reads` flags:
 
 ```
 nextflow run BCCDC-PHL/alignment-variants \
   --ref /path/to/ref.fa \
   --fastq_input /path/to/fastqs \
   --fastq_input_long /path/to/long_fastqs \
+  --align_long_reads \
   --outdir /path/to/outputs
 ```
 
