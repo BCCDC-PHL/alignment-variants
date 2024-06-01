@@ -45,7 +45,6 @@ workflow {
 	ch_nanopore_fastq = Channel.fromPath( params.fastq_nanopore_search_path ).map{ it -> [it.getName().split('_')[0], it] }.unique{ it -> it[0] }
     }
 
-    
 
     main:
     ch_illumina_sample_ids = ch_illumina_fastq.map{ it -> it[0] }
@@ -113,17 +112,15 @@ workflow {
     // [sample_id, [provenance_file_1.yml, provenance_file_2.yml, provenance_file_3.yml...]]
     // At each step, we add another provenance file to the list using the << operator...
     // ...and then concatenate them all together in the 'collect_provenance' process.
-    ch_provenance = ch_provenance.combine(ch_pipeline_provenance).map{ it ->        [it[0], [it[1]]] }
-    ch_provenance = ch_provenance.join(hash_ref.out.provenance).map{ it ->          [it[0], it[1] << it[2]] }
+    ch_provenance = ch_provenance.combine(ch_pipeline_provenance).map{ it ->            [it[0], [it[1]]] }
+    ch_provenance = ch_provenance.join(hash_ref.out.provenance).map{ it ->              [it[0], it[1] << it[2]] }
     ch_provenance = ch_provenance.join(hash_fastq_short.out.provenance).map{ it ->  [it[0], it[1] << it[2]] }
-    // Check the length of the collected nanopore sample IDs to determine if we need to collect nanopore provenance
-    // I need to pull the value out of the channel and convert it to a list to get the length
-    ch_illumina_sample_ids.toList().size().view()
-    if (false) {
+    ch_provenance = ch_provenance.join(fastp.out.provenance).map{ it ->             [it[0], it[1] << it[2]] }
+    if (params.align_long_reads) {
 	ch_provenance = ch_provenance.join(hash_fastq_long.out.provenance).map{ it ->   [it[0], it[1] << it[2]] }
     }
-    ch_provenance = ch_provenance.join(bwa_mem.out.provenance).map{ it ->           [it[0], it[1] << it[2]] }
-    if (false) {
+    ch_provenance = ch_provenance.join(bwa_mem.out.provenance).map{ it ->               [it[0], it[1] << it[2]] }
+    if (params.align_long_reads) {
 	ch_provenance = ch_provenance.join(nanoq_pre_filter.out.provenance).map{ it ->  [it[0], it[1] << it[2]] }
 	ch_provenance = ch_provenance.join(filtlong.out.provenance).map{ it ->          [it[0], it[1] << it[2]] }
 	ch_provenance = ch_provenance.join(nanoq_post_filter.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
