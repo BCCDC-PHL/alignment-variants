@@ -33,3 +33,8 @@ while IFS=',' read -r sample_id assembly; do
 
 done < .github/data/reads_to_simulate.csv
 
+touch .github/data/fastq/empty_R1.fastq
+touch .github/data/fastq/empty_R2.fastq
+
+gzip -f .github/data/fastq/empty_R1.fastq
+gzip -f .github/data/fastq/empty_R2.fastq

@@ -5,6 +5,7 @@ import csv
 import glob
 import json
 import os
+import sys
 import urllib.request
 
 from jsonschema import validate
@@ -94,14 +95,17 @@ def main(args):
 
     output_path = args.output
     with open(output_path, 'w') as f:
-        writer = csv.DictWriter(f, fieldnames=output_fields, extrasaction='ignore')
-        writer.writeheader()
+        file_writer = csv.DictWriter(f, fieldnames=output_fields, extrasaction='ignore')
+        stdout_writer = csv.DictWriter(sys.stdout, fieldnames=output_fields, extrasaction='ignore')
+        stdout_writer.writeheader()
+        file_writer.writeheader()
         for test in tests:
             if test["test_passed"]:
                 test["test_result"] = "PASS"
             else:
                 test["test_result"] = "FAIL"
-            writer.writerow(test)
+            stdout_writer.writerow(test)
+            file_writer.writerow(test)
 
     for test in tests:
         if not test['test_passed']:
