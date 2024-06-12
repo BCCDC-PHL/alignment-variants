@@ -150,8 +150,8 @@ process qualimap_bamqc {
 
     output:
     tuple val(sample_id), val(short_long), path("${sample_id}_${short_long}_qualimap_alignment_qc.csv"), emit: alignment_qc
-    tuple val(sample_id), val(short_long), path("${sample_id}_${short_long}_qualimap_report.pdf"), emit: report
-    tuple val(sample_id), val(short_long), path("${sample_id}_${short_long}_qualimap_genome_results.txt"), emit: genome_results
+    tuple val(sample_id), val(short_long), path("${sample_id}_${short_long}_qualimap_report.pdf"), emit: report, optional: true
+    tuple val(sample_id), val(short_long), path("${sample_id}_${short_long}_qualimap_genome_results.txt"), emit: genome_results, optional: true
     tuple val(sample_id), path("${sample_id}_${short_long}_qualimap_bamqc_provenance.yml"), emit: provenance
     
     script:
@@ -165,7 +165,12 @@ process qualimap_bamqc {
     printf -- "          value: null\\n"               >> ${sample_id}_${short_long}_qualimap_bamqc_provenance.yml
     printf -- "        - parameter: --cov-hist-lim\\n" >> ${sample_id}_${short_long}_qualimap_bamqc_provenance.yml
     printf -- "          value: ${params.qualimap_coverage_histogram_limit}\\n" >> ${sample_id}_${short_long}_qualimap_bamqc_provenance.yml
-    
+
+    # Assume qualimap exits successfully
+    # If it fails we will re-assign the exit code
+    # and generate an empty qualimap alignment qc
+    qualimap_exit_code=0
+
     qualimap \
 	--java-mem-size=${params.qualimap_memory} \
 	bamqc \
@@ -176,16 +181,26 @@ process qualimap_bamqc {
 	-nt ${task.cpus} \
 	-bam ${alignment[0]} \
 	-outformat PDF \
-	--outdir ${sample_id}_${short_long}_bamqc
+	--outdir ${sample_id}_${short_long}_bamqc \
+	|| qualimap_exit_code=\$?
 
-    qualimap_bamqc_genome_results_to_csv.py \
+    if [ \${qualimap_exit_code} -ne 0 ]; then
+    echo "Qualimap failed with exit code \${qualimap_exit_code}"
+        echo "Generating empty qualimap alignment qc"
+        qualimap_bamqc_genome_results_to_csv.py \
 	-s ${sample_id} \
 	--read-type ${short_long} \
-	${sample_id}_${short_long}_bamqc/genome_results.txt \
+	--failed \
 	> ${sample_id}_${short_long}_qualimap_alignment_qc.csv
-
-    cp ${sample_id}_${short_long}_bamqc/report.pdf ${sample_id}_${short_long}_qualimap_report.pdf
-    cp ${sample_id}_${short_long}_bamqc/genome_results.txt ${sample_id}_${short_long}_qualimap_genome_results.txt
+    else
+	qualimap_bamqc_genome_results_to_csv.py \
+	-s ${sample_id} \
+	--read-type ${short_long} \
+	--qualimap-bamqc-genome-results ${sample_id}_${short_long}_bamqc/genome_results.txt \
+	> ${sample_id}_${short_long}_qualimap_alignment_qc.csv
+        cp ${sample_id}_${short_long}_bamqc/report.pdf ${sample_id}_${short_long}_qualimap_report.pdf
+        cp ${sample_id}_${short_long}_bamqc/genome_results.txt ${sample_id}_${short_long}_qualimap_genome_results.txt
+    fi
     """
 }
 
