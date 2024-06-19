@@ -403,3 +403,28 @@ process freebayes {
 	> ${sample_id}_${short_long}_freebayes.vcf
     """
 }
+
+
+process plot_coverage {
+
+    tag { sample_id + ' / ' + short_long }
+
+    publishDir "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}_${short_long}_coverage.png"
+
+    input:
+    tuple val(sample_id), val(short_long), path(depths), path(ref)
+
+    output:
+    tuple val(sample_id), path("${sample_id}_${short_long}_coverage.png")
+
+    script:
+    """
+    plot-coverage.py \
+	--sample-id ${sample_id} \
+	--ref ${ref} \
+	--depths ${depths} \
+	--threshold ${params.min_depth} \
+	--output ${sample_id}_${short_long}_coverage.png
+	
+    """
+}
