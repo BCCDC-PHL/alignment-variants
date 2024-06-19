@@ -169,6 +169,10 @@ def main(args):
     )
 
     all_depths_df = pd.read_csv(args.depths, sep="\t")
+    # Check if depths are empty
+    if all_depths_df.empty:
+        logging.error("No depth of coverage data found in input file. Exiting...")
+        exit(0)
 
     logging.info("Calculating tumbling window depths")
     # create an empty dataframe to fill with tumbling window depths:
@@ -199,6 +203,7 @@ def main(args):
         bed = parse_bed(args.bed)
 
     logging.info("Plotting coverage...")
+
     coverage_plot = plot_coverage(tumbling_window_depths, bed, args.sample_id, args.threshold, args.window, args.log_scale, args.width_inches_per_mb, args.height_inches_per_chrom)
     logging.info(f"Saving plot to {args.output}...")
     coverage_plot.savefig(args.output, dpi=100)

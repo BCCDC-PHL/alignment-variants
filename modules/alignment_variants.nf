@@ -415,7 +415,7 @@ process plot_coverage {
     tuple val(sample_id), val(short_long), path(depths), path(ref)
 
     output:
-    tuple val(sample_id), path("${sample_id}_${short_long}_coverage.png")
+    tuple val(sample_id), path("${sample_id}_${short_long}_coverage.png"), optional: true
 
     script:
     """
