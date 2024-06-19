@@ -22,6 +22,7 @@ include { samtools_stats }                 from './modules/alignment_variants.nf
 include { combine_alignment_qc }           from './modules/alignment_variants.nf'
 include { generate_low_coverage_bed }      from './modules/alignment_variants.nf'
 include { percent_coverage_by_depth }      from './modules/alignment_variants.nf'
+include { plot_coverage }                  from './modules/alignment_variants.nf'
 include { pipeline_provenance }            from './modules/provenance.nf'
 include { collect_provenance }             from './modules/provenance.nf'
 
@@ -99,12 +100,34 @@ workflow {
 
     percent_coverage_by_depth(ch_depths)
 
+    plot_coverage(ch_depths.join(ch_ref))
+
     // Collect multi-sample outputs
     if (params.collect_outputs) {
-	fastp.out.fastp_csv.map{ it -> it[1] }.collectFile(keepHeader: true, sort: { it.text }, name: "${params.collected_outputs_prefix}_fastp.csv", storeDir: "${params.outdir}")
-	qualimap_bamqc.out.alignment_qc.map{ it -> it[2] }.collectFile(keepHeader: true, sort: { it.text }, name: "${params.collected_outputs_prefix}_qualimap_alignment_qc.csv", storeDir: "${params.outdir}")
-	samtools_stats.out.stats_summary_csv.map{ it -> it[2] }.collectFile(keepHeader: true, sort: { it.text }, name: "${params.collected_outputs_prefix}_samtools_stats_summary.csv", storeDir: "${params.outdir}")
-	combine_alignment_qc.out.map{ it -> it[2] }.collectFile(keepHeader: true, sort: { it.text }, name: "${params.collected_outputs_prefix}_combined_alignment_qc.csv", storeDir: "${params.outdir}")
+	fastp.out.fastp_csv.map{ it -> it[1] }.collectFile(
+	    keepHeader: true,
+	    sort: { it.text },
+	    name: "${params.collected_outputs_prefix}_fastp.csv",
+	    storeDir: "${params.outdir}"
+	)
+	qualimap_bamqc.out.alignment_qc.map{ it -> it[2] }.collectFile(
+	    keepHeader: true,
+	    sort: { it.text },
+	    name: "${params.collected_outputs_prefix}_qualimap_alignment_qc.csv",
+	    storeDir: "${params.outdir}"
+	)
+	samtools_stats.out.stats_summary_csv.map{ it -> it[2] }.collectFile(
+	    keepHeader: true,
+	    sort: { it.text },
+	    name: "${params.collected_outputs_prefix}_samtools_stats_summary.csv",
+	    storeDir: "${params.outdir}"
+	)
+	combine_alignment_qc.out.map{ it -> it[2] }.collectFile(
+	    keepHeader: true,
+	    sort: { it.text },
+	    name: "${params.collected_outputs_prefix}_combined_alignment_qc.csv",
+	    storeDir: "${params.outdir}"
+	)
     }
 
     // Collect Provenance
