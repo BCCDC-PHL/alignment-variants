@@ -125,7 +125,7 @@ def plot_coverage(depths: pd.DataFrame, bed: dict, sample_name: str="Sample", th
     longest_chrom_length = depths[depths.chrom == longest_chrom].pos.max()
     longest_chrom_length_mb = longest_chrom_length / 1_000_000
     sns.set_style("whitegrid")
-    dpi = 100
+    dpi = 300
     width_pixels = round(longest_chrom_length_mb * width_inches_per_mb * dpi)
     height_pixels = round(height_inches_per_chrom * num_chroms * dpi)
     logging.info(f"Plot size: {width_pixels} x {height_pixels} pixels")
