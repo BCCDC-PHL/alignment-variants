@@ -403,3 +403,34 @@ process freebayes {
 	> ${sample_id}_${short_long}_freebayes.vcf
     """
 }
+
+
+process plot_coverage {
+
+    tag { sample_id + ' / ' + short_long }
+
+    publishDir "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}_${short_long}_coverage.png"
+
+    input:
+    tuple val(sample_id), val(short_long), path(depths), path(ref)
+
+    output:
+    tuple val(sample_id), path("${sample_id}_${short_long}_coverage.png"), optional: true
+
+    script:
+    log_scale = params.coverage_plot_log_scale ? "--log-scale" : ""
+    """
+    plot-coverage.py \
+	--sample-id ${sample_id} \
+	--ref ${ref} \
+	--depths ${depths} \
+	--threshold ${params.min_depth} \
+	--y-limit ${params.coverage_plot_y_limit} \
+	--width-inches-per-mb ${params.coverage_plot_width_inches_per_mb} \
+	--height-inches-per-chrom ${params.coverage_plot_height_inches_per_chrom} \
+	--window ${params.coverage_plot_window_size} \
+	${log_scale} \
+	--output ${sample_id}_${short_long}_coverage.png
+	
+    """
+}
