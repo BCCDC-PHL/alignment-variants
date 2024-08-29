@@ -120,7 +120,7 @@ def main(args):
     if args.sample_id:
         output_fields = ['sample_id'] + output_fields
 
-    writer = csv.DictWriter(sys.stdout, fieldnames=output_fields, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, extrasaction='ignore')
+    writer = csv.DictWriter(sys.stdout, fieldnames=output_fields, dialect='unix', quoting=csv.QUOTE_MINIMAL, extrasaction='ignore')
     writer.writeheader()
     writer.writerow(samtools_stats_summary_data)
 
