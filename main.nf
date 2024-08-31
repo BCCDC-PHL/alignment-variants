@@ -66,6 +66,12 @@ workflow {
 
     fastp(ch_illumina_fastq)
 
+    if (! params.align_untrimmed_reads) {	
+	ch_illumina_reads_to_align = fastp.out.trimmed_reads
+    } else {
+	ch_illumina_reads_to_align = ch_illumina_fastq
+    }
+
     nanoq_pre_filter(ch_nanopore_fastq.combine(Channel.of("pre_filter")))
 
     filtlong(ch_nanopore_fastq)
@@ -74,11 +80,17 @@ workflow {
 
     merge_nanoq_reports(nanoq_pre_filter.out.report.join(nanoq_post_filter.out.report))
 
-    bwa_mem(fastp.out.reads.join(ch_indexed_ref))
+    if (! params.align_unfiltered_reads) {
+	ch_nanopore_reads_to_align = filtlong.out.filtered_reads
+    } else {
+	ch_nanopore_reads_to_align = ch_nanopore_fastq
+    }    
+
+    bwa_mem(ch_illumina_reads_to_align.join(ch_indexed_ref))
 
     ch_bwa_alignment = bwa_mem.out.alignment
 
-    minimap2(ch_nanopore_fastq.join(ch_indexed_ref))
+    minimap2(ch_nanopore_reads_to_align.join(ch_indexed_ref))
 
     ch_minimap2_alignment = minimap2.out.alignment
 
@@ -137,8 +149,8 @@ workflow {
     // ...and then concatenate them all together in the 'collect_provenance' process.
     ch_provenance = ch_provenance.combine(ch_pipeline_provenance).map{ it ->            [it[0], [it[1]]] }
     ch_provenance = ch_provenance.join(hash_ref.out.provenance).map{ it ->              [it[0], it[1] << it[2]] }
-    ch_provenance = ch_provenance.join(hash_fastq_short.out.provenance).map{ it ->  [it[0], it[1] << it[2]] }
-    ch_provenance = ch_provenance.join(fastp.out.provenance).map{ it ->             [it[0], it[1] << it[2]] }
+    ch_provenance = ch_provenance.join(hash_fastq_short.out.provenance).map{ it ->      [it[0], it[1] << it[2]] }
+    ch_provenance = ch_provenance.join(fastp.out.provenance).map{ it ->                 [it[0], it[1] << it[2]] }
     if (params.align_long_reads) {
 	ch_provenance = ch_provenance.join(hash_fastq_long.out.provenance).map{ it ->   [it[0], it[1] << it[2]] }
     }
@@ -149,10 +161,10 @@ workflow {
 	ch_provenance = ch_provenance.join(nanoq_post_filter.out.provenance).map{ it -> [it[0], it[1] << it[2]] }
 	ch_provenance = ch_provenance.join(minimap2.out.provenance).map{ it ->          [it[0], it[1] << it[2]] }
     }
-    ch_provenance = ch_provenance.join(qualimap_bamqc.out.provenance).map{ it ->    [it[0], it[1] << it[2]] }
-    ch_provenance = ch_provenance.join(samtools_mpileup.out.provenance).map{ it ->  [it[0], it[1] << it[2]] }
-    ch_provenance = ch_provenance.join(samtools_stats.out.provenance).map{ it ->    [it[0], it[1] << it[2]] }
-    ch_provenance = ch_provenance.join(freebayes.out.provenance).map{ it ->         [it[0], it[1] << it[2]] }
+    ch_provenance = ch_provenance.join(qualimap_bamqc.out.provenance).map{ it ->        [it[0], it[1] << it[2]] }
+    ch_provenance = ch_provenance.join(samtools_mpileup.out.provenance).map{ it ->      [it[0], it[1] << it[2]] }
+    ch_provenance = ch_provenance.join(samtools_stats.out.provenance).map{ it ->        [it[0], it[1] << it[2]] }
+    ch_provenance = ch_provenance.join(freebayes.out.provenance).map{ it ->             [it[0], it[1] << it[2]] }
 
     collect_provenance(ch_provenance)
   
