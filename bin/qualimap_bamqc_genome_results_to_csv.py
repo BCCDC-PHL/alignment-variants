@@ -26,58 +26,72 @@ def parse_qualimap_bamqc_genome_results(qualimap_bamqc_genome_results):
                 num_mapped_reads = line.split('=')[1].strip().split(' ')[0].replace(',', '')
                 qualimap_bamqc_genome_results_data['num_mapped_reads'] = int(num_mapped_reads)
                 percent_mapped_reads = line.split('=')[1].strip().split(' ')[1].strip().replace('(', '').replace(')', '').replace('%', '')
-                qualimap_bamqc_genome_results_data['percent_mapped_reads'] = round(float(percent_mapped_reads), 2)
+                qualimap_bamqc_genome_results_data['percent_mapped_reads'] = round(float(percent_mapped_reads), 6)
+            if line.startswith('number of supplementary alignments'):
+                num_supplementary_alignments = int(line.split('=')[1].strip().split()[0].replace(',', ''))
+                qualimap_bamqc_genome_results_data['num_supplementary_alignments'] = num_supplementary_alignments
+                percent_supplementary_alignments = line.split('=')[1].strip().split(' ')[1].strip().replace('(', '').replace(')', '').replace('%', '')
+                qualimap_bamqc_genome_results_data['percent_supplementary_alignments'] = round(float(percent_supplementary_alignments), 6)
             if line.startswith('number of secondary alignments'):
                 num_secondary_alignments = int(line.split('=')[1].strip().replace(',', ''))
                 qualimap_bamqc_genome_results_data['num_secondary_alignments'] = num_secondary_alignments
-            if line.startswith('duplication rate'):
-                duplication_rate = line.split('=')[1].strip().replace('%', '')
-                qualimap_bamqc_genome_results_data['duplication_rate_percent'] = round(float(duplication_rate), 2)
+            if line.startswith('number of mapped bases'):
+                num_mapped_bases = line.split('=')[1].strip().split()[0].replace(',', '')
+                qualimap_bamqc_genome_results_data['num_mapped_bases'] = int(num_mapped_bases)
+            if line.startswith('number of sequenced bases'):
+                num_sequenced_bases = line.split('=')[1].strip().split()[0].replace(',', '')
+                qualimap_bamqc_genome_results_data['num_sequenced_bases'] = int(num_sequenced_bases)
+            if line.startswith('number of duplicated reads'):
+                num_duplicated_reads = line.split('=')[1].strip().replace(',', '')
+                qualimap_bamqc_genome_results_data['num_duplicated_reads'] = int(num_duplicated_reads)
+                num_mapped_reads = qualimap_bamqc_genome_results_data['num_mapped_reads']
+                duplication_rate_percent = (int(num_duplicated_reads) / int(num_mapped_reads)) * 100
+                qualimap_bamqc_genome_results_data['duplication_rate_percent'] = round(duplication_rate_percent, 6)
             if line.startswith('mean coverageData'):
                 mean_coverage = line.split('=')[1].strip().strip('X').replace(',', '')
-                qualimap_bamqc_genome_results_data['mean_depth_coverage'] = round(float(mean_coverage), 2)
+                qualimap_bamqc_genome_results_data['mean_depth_coverage'] = round(float(mean_coverage), 6)
             if line.startswith('std coverageData'):
                 stdev_coverage = line.split('=')[1].strip().strip('X').replace(',', '')
-                qualimap_bamqc_genome_results_data['stdev_depth_coverage'] = round(float(stdev_coverage), 2)
+                qualimap_bamqc_genome_results_data['stdev_depth_coverage'] = round(float(stdev_coverage), 6)
             if line.startswith('mean mapping quality'):
                 mean_mapping_quality = line.split('=')[1].strip()
-                qualimap_bamqc_genome_results_data['mean_mapping_quality'] = round(float(mean_mapping_quality), 2)
+                qualimap_bamqc_genome_results_data['mean_mapping_quality'] = round(float(mean_mapping_quality), 6)
             if line.startswith('general error rate'):
                 general_error_rate = line.split('=')[1].strip()
-                qualimap_bamqc_genome_results_data['error_rate'] = round(float(general_error_rate), 2)
+                qualimap_bamqc_genome_results_data['error_rate'] = round(float(general_error_rate), 6)
             if line.startswith('number of mismatches'):
                 number_of_mismatches = line.split('=')[1].strip().replace(',', '')
-                qualimap_bamqc_genome_results_data['number_of_mismatches'] = int(number_of_mismatches)
+                qualimap_bamqc_genome_results_data['num_mismatches'] = int(number_of_mismatches)
             if line.startswith('number of insertions'):
                 number_of_insertions = line.split('=')[1].strip().replace(',', '')
-                qualimap_bamqc_genome_results_data['number_of_insertions'] = int(number_of_insertions)
+                qualimap_bamqc_genome_results_data['num_insertions'] = int(number_of_insertions)
             if line.startswith('mapped reads with insertion percentage'):
                 mapped_reads_with_insertion_percentage = line.split('=')[1].strip().replace('%', '')
-                qualimap_bamqc_genome_results_data['mapped_reads_with_insertion_percentage'] = round(float(mapped_reads_with_insertion_percentage), 2)
+                qualimap_bamqc_genome_results_data['mapped_reads_with_insertion_percent'] = round(float(mapped_reads_with_insertion_percentage), 6)
             if line.startswith('number of deletions'):
                 number_of_deletions = line.split('=')[1].strip().replace(',', '')
-                qualimap_bamqc_genome_results_data['number_of_deletions'] = int(number_of_deletions)
+                qualimap_bamqc_genome_results_data['num_deletions'] = int(number_of_deletions)
             if line.startswith('mapped reads with deletion percentage'):
                 mapped_reads_with_deletion_percentage = line.split('=')[1].strip().replace('%', '')
-                qualimap_bamqc_genome_results_data['mapped_reads_with_deletion_percentage'] = round(float(mapped_reads_with_deletion_percentage), 2)
+                qualimap_bamqc_genome_results_data['mapped_reads_with_deletion_percent'] = round(float(mapped_reads_with_deletion_percentage), 6)
             if 'reference with a coverageData >= 5X' in line:
                 proportion_genome_covered_over_5x = float(line.split(' ')[3].strip('%')) / 100
-                qualimap_bamqc_genome_results_data['proportion_genome_covered_over_5x'] = round(proportion_genome_covered_over_5x, 4)
+                qualimap_bamqc_genome_results_data['proportion_genome_covered_over_5x'] = round(proportion_genome_covered_over_5x, 6)
             if 'reference with a coverageData >= 10X' in line:
                 proportion_genome_covered_over_10x = float(line.split(' ')[3].strip('%')) / 100
-                qualimap_bamqc_genome_results_data['proportion_genome_covered_over_10x'] = round(proportion_genome_covered_over_10x, 4)
+                qualimap_bamqc_genome_results_data['proportion_genome_covered_over_10x'] = round(proportion_genome_covered_over_10x, 6)
             if 'reference with a coverageData >= 20X' in line:
                 proportion_genome_covered_over_20x = float(line.split(' ')[3].strip('%')) / 100
-                qualimap_bamqc_genome_results_data['proportion_genome_covered_over_20x'] = round(proportion_genome_covered_over_20x, 4)
+                qualimap_bamqc_genome_results_data['proportion_genome_covered_over_20x'] = round(proportion_genome_covered_over_20x, 6)
             if 'reference with a coverageData >= 30X' in line:
                 proportion_genome_covered_over_30x = float(line.split(' ')[3].strip('%')) / 100
-                qualimap_bamqc_genome_results_data['proportion_genome_covered_over_30x'] = round(proportion_genome_covered_over_30x, 4)
+                qualimap_bamqc_genome_results_data['proportion_genome_covered_over_30x'] = round(proportion_genome_covered_over_30x, 6)
             if 'reference with a coverageData >= 40X' in line:
                 proportion_genome_covered_over_40x = float(line.split(' ')[3].strip('%')) / 100
-                qualimap_bamqc_genome_results_data['proportion_genome_covered_over_40x'] = round(proportion_genome_covered_over_40x, 4)
+                qualimap_bamqc_genome_results_data['proportion_genome_covered_over_40x'] = round(proportion_genome_covered_over_40x, 6)
             if 'reference with a coverageData >= 50X' in line:
                 proportion_genome_covered_over_50x = float(line.split(' ')[3].strip('%')) / 100
-                qualimap_bamqc_genome_results_data['proportion_genome_covered_over_50x'] = round(proportion_genome_covered_over_50x, 4)
+                qualimap_bamqc_genome_results_data['proportion_genome_covered_over_50x'] = round(proportion_genome_covered_over_50x, 6)
 
     return qualimap_bamqc_genome_results_data
 
@@ -91,13 +105,18 @@ def main(args):
         'num_mapped_reads',
         'percent_mapped_reads',
         'mean_mapping_quality',
+        'num_sequenced_bases',
+        'num_mapped_bases',
+        'num_mismatches',
+        'num_insertions',
+        'num_deletions',
         'error_rate',
-        'number_of_mismatches',
-        'number_of_insertions',
-        'mapped_reads_with_insertion_percentage',
-        'number_of_deletions',
-        'mapped_reads_with_deletion_percentage',
+        'mapped_reads_with_insertion_percent',
+        'mapped_reads_with_deletion_percent',
         'num_secondary_alignments',
+        'num_supplementary_alignments',
+        'percent_supplementary_alignments',
+        'num_duplicated_reads',
         'duplication_rate_percent',
         'proportion_genome_covered_over_5x',
         'proportion_genome_covered_over_10x',

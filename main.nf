@@ -80,7 +80,7 @@ workflow {
 
     merge_nanoq_reports(nanoq_pre_filter.out.report.join(nanoq_post_filter.out.report))
 
-    if (! params.align_unfiltered_reads) {
+    if (! params.align_untrimmed_reads) {
 	ch_nanopore_reads_to_align = filtlong.out.filtered_reads
     } else {
 	ch_nanopore_reads_to_align = ch_nanopore_fastq
