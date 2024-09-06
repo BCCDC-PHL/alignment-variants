@@ -142,7 +142,7 @@ process qualimap_bamqc {
     tag { sample_id + ' / ' + short_long }
 
     publishDir  "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}_${short_long}_qualimap_alignment_qc.csv"
-    publishDir  "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}_${short_long}_qualimap_genome_results.txt"
+    publishDir  "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}_${short_long}_qualimap_genome_results.{txt,json}"
     publishDir  "${params.outdir}/${sample_id}", mode: 'copy', pattern: "${sample_id}_${short_long}_qualimap_report.pdf"
 
     input:
@@ -152,6 +152,7 @@ process qualimap_bamqc {
     tuple val(sample_id), val(short_long), path("${sample_id}_${short_long}_qualimap_alignment_qc.csv"), emit: alignment_qc
     tuple val(sample_id), val(short_long), path("${sample_id}_${short_long}_qualimap_report.pdf"), emit: report, optional: true
     tuple val(sample_id), val(short_long), path("${sample_id}_${short_long}_qualimap_genome_results.txt"), emit: genome_results, optional: true
+    tuple val(sample_id), val(short_long), path("${sample_id}_${short_long}_qualimap_genome_results.json"), emit: genome_results_json, optional: true
     tuple val(sample_id), path("${sample_id}_${short_long}_qualimap_bamqc_provenance.yml"), emit: provenance
     
     script:
@@ -192,7 +193,13 @@ process qualimap_bamqc {
 	--read-type ${short_long} \
 	--failed \
 	> ${sample_id}_${short_long}_qualimap_alignment_qc.csv
+
+    echo '{}' > ${sample_id}_${short_long}_qualimap_genome_results.json
     else
+	qualimap_bamqc_genome_results_to_json.py \
+	--input ${sample_id}_${short_long}_bamqc/genome_results.txt \
+	> ${sample_id}_${short_long}_qualimap_genome_results.json
+	
 	qualimap_bamqc_genome_results_to_csv.py \
 	-s ${sample_id} \
 	--read-type ${short_long} \
