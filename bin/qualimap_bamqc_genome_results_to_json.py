@@ -260,7 +260,7 @@ def parse_coverage_section(report_path):
             key = key.strip().replace(' ', '_').replace('coverageData', 'coverage').lower()
             value = value.strip()
             if key in float_x_keys:
-                value = value.replace('X', '')
+                value = value.replace('X', '').replace(',', '')
                 value = float(value)
         coverage_section[key] = value
 
