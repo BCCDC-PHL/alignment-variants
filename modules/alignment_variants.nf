@@ -112,7 +112,7 @@ process minimap2 {
     printf -- "          value: null\\n"        >> ${sample_id}_minimap2_provenance.yml
     printf -- "        - parameter: -x\\n"      >> ${sample_id}_minimap2_provenance.yml
     printf -- "          value: map-ont\\n"     >> ${sample_id}_minimap2_provenance.yml
-    printf -- "        - parameter: -MD\\n"     >> ${sample_id}_minimap2_provenance.yml
+    printf -- "        - parameter: --MD\\n"    >> ${sample_id}_minimap2_provenance.yml
     printf -- "          value: null\\n"        >> ${sample_id}_minimap2_provenance.yml
     printf -- "    - tool_name: samtools\\n"    >> ${sample_id}_minimap2_provenance.yml
     printf -- "      tool_version: \$(samtools 2>&1 | grep 'Version' | cut -d ' ' -f 2)\\n"  >> ${sample_id}_minimap2_provenance.yml
@@ -125,7 +125,7 @@ process minimap2 {
 	-t ${minimap2_threads} \
 	-ax map-ont \
 	-R "@RG\\tID:${sample_id}-ONT\\tSM:${sample_id}\\tPL:ONT" \
-	-MD \
+	--MD \
 	${ref} \
 	${reads} \
 	| samtools view -@ 2 -h -F ${samtools_view_filter_flags} \
