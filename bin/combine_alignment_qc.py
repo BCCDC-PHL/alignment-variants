@@ -52,6 +52,7 @@ def main(args):
         'non-primary_alignments',
         'supplementary_alignments',
         'average_length',
+        'average_quality',
         'average_first_fragment_length',
         'average_last_fragment_length',
         'insert_size_average',
